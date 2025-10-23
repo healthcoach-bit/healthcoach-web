@@ -13,7 +13,7 @@ import { useUIStore } from '@/store/ui-store';
 export default function FoodLogDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const id = params.id as string;
   const openDeleteModal = useUIStore((state) => state.openDeleteModal);
 
@@ -58,14 +58,14 @@ export default function FoodLogDetailPage() {
     return t[typeKey] || type;
   };
 
-  const formattedDate = new Date(foodLog.timestamp).toLocaleDateString(undefined, {
+  const formattedDate = new Date(foodLog.timestamp).toLocaleDateString(locale, {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   });
 
-  const formattedTime = new Date(foodLog.timestamp).toLocaleTimeString(undefined, {
+  const formattedTime = new Date(foodLog.timestamp).toLocaleTimeString(locale, {
     hour: '2-digit',
     minute: '2-digit',
   });

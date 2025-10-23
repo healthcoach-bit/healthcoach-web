@@ -7,6 +7,7 @@ interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: typeof translations.en;
+  locale: string; // For date formatting
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -32,6 +33,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     language,
     setLanguage,
     t: translations[language],
+    locale: language === 'es' ? 'es-ES' : 'en-US',
   };
 
   // Prevent flash of wrong language

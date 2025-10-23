@@ -19,7 +19,7 @@ export default function FoodLogCard({
   notes,
   onDelete
 }: FoodLogCardProps) {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
 
   // Translate meal type from database value to i18n
   const getMealTypeTranslation = (type: string): string => {
@@ -35,7 +35,7 @@ export default function FoodLogCard({
             {getMealTypeTranslation(mealType)}
           </h3>
           <p className="text-xs sm:text-sm text-gray-500 mt-1">
-            {new Date(timestamp).toLocaleDateString()}
+            {new Date(timestamp).toLocaleDateString(locale)}
           </p>
         </div>
         <div className="flex items-start gap-2">
