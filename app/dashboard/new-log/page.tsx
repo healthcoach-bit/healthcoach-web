@@ -10,13 +10,23 @@ import { useCreateFoodLog } from '@/hooks/useFoodLogs';
 import { usePhotoUpload } from '@/hooks/usePhotos';
 import { useUIStore } from '@/store/ui-store';
 
+// Helper function to get local datetime string for datetime-local input
+const getLocalDateTimeString = (date: Date = new Date()): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
+
 export default function NewLogPage() {
   const router = useRouter();
   const { t } = useLanguage();
   
   const [mealType, setMealType] = useState('breakfast');
   const [notes, setNotes] = useState('');
-  const [timestamp, setTimestamp] = useState(new Date().toISOString().slice(0, 16));
+  const [timestamp, setTimestamp] = useState(getLocalDateTimeString());
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [error, setError] = useState('');
