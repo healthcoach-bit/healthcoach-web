@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getCurrentUser } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -23,6 +24,18 @@ const getLocalDateTimeString = (date: Date = new Date()): string => {
 export default function NewLogPage() {
   const router = useRouter();
   const { t } = useLanguage();
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    try {
+      await getCurrentUser();
+    } catch (err) {
+      router.push('/login');
+    }
+  };
   
   const [mealType, setMealType] = useState('breakfast');
   const [notes, setNotes] = useState('');

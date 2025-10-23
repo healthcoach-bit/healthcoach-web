@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect } from 'react';
+import { getCurrentUser } from 'aws-amplify/auth';
 import { useParams, useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import DashboardHeader from '@/components/DashboardHeader';
@@ -20,6 +22,18 @@ export default function FoodLogDetailPage() {
 
   const { data, isLoading, error } = useFoodLog(id);
   const foodLog = data?.foodLog;
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    try {
+      await getCurrentUser();
+    } catch (err) {
+      router.push('/login');
+    }
+  };
 
   const handleDelete = () => {
     openDeleteModal(id, 'foodLog', () => {
