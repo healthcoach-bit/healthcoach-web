@@ -21,12 +21,18 @@ export default function FoodLogCard({
 }: FoodLogCardProps) {
   const { t } = useLanguage();
 
+  // Translate meal type from database value to i18n
+  const getMealTypeTranslation = (type: string): string => {
+    const typeKey = type.toLowerCase() as 'breakfast' | 'lunch' | 'dinner' | 'snack';
+    return t[typeKey] || type;
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 hover:shadow-lg transition-shadow">
       <div className="flex justify-between items-start mb-4">
         <div className="flex-1">
-          <h3 className="font-bold text-lg sm:text-xl text-gray-900 capitalize">
-            {mealType}
+          <h3 className="font-bold text-lg sm:text-xl text-gray-900">
+            {getMealTypeTranslation(mealType)}
           </h3>
           <p className="text-xs sm:text-sm text-gray-500 mt-1">
             {new Date(timestamp).toLocaleDateString()}

@@ -52,6 +52,12 @@ export default function FoodLogDetailPage() {
     );
   }
 
+  // Translate meal type from database value to i18n
+  const getMealTypeTranslation = (type: string): string => {
+    const typeKey = type.toLowerCase() as 'breakfast' | 'lunch' | 'dinner' | 'snack';
+    return t[typeKey] || type;
+  };
+
   const formattedDate = new Date(foodLog.timestamp).toLocaleDateString(undefined, {
     weekday: 'long',
     year: 'numeric',
@@ -73,8 +79,8 @@ export default function FoodLogDetailPage() {
         {/* Header with Title and Actions */}
         <div className="mb-6">
           <div className="flex items-start justify-between mb-2">
-            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 capitalize">
-              {foodLog.meal_type}
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">
+              {getMealTypeTranslation(foodLog.meal_type)}
             </h1>
             <DeleteButton onClick={handleDelete} size="lg" />
           </div>
