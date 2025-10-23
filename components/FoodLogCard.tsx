@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import DeleteButton from './DeleteButton';
+import { formatDateTime } from '@/lib/dateUtils';
 
 interface FoodLogCardProps {
   id: string;
@@ -35,7 +36,7 @@ export default function FoodLogCard({
             {getMealTypeTranslation(mealType)}
           </h3>
           <p className="text-xs sm:text-sm text-gray-500 mt-1">
-            {new Date(timestamp).toLocaleDateString(locale)}
+            {formatDateTime(timestamp, locale)}
           </p>
         </div>
         <div className="flex items-start gap-2">

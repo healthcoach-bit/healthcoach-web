@@ -9,6 +9,7 @@ import ErrorAlert from '@/components/ErrorAlert';
 import DeleteButton from '@/components/DeleteButton';
 import { useFoodLog } from '@/hooks/useFoodLogs';
 import { useUIStore } from '@/store/ui-store';
+import { formatDate, formatTime } from '@/lib/dateUtils';
 
 export default function FoodLogDetailPage() {
   const params = useParams();
@@ -58,18 +59,8 @@ export default function FoodLogDetailPage() {
     return t[typeKey] || type;
   };
 
-  const formattedDate = new Date(foodLog.timestamp).toLocaleDateString(locale, {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-
-  const formattedTime = new Date(foodLog.timestamp).toLocaleTimeString(locale, {
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true,
-  });
+  const formattedDate = formatDate(foodLog.timestamp, locale);
+  const formattedTime = formatTime(foodLog.timestamp, locale);
 
   return (
     <div className="min-h-screen bg-gray-50">
