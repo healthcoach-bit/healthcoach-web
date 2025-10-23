@@ -66,8 +66,9 @@ export default function FoodLogDetailPage() {
   });
 
   const formattedTime = new Date(foodLog.timestamp).toLocaleTimeString(locale, {
-    hour: '2-digit',
+    hour: 'numeric',
     minute: '2-digit',
+    hour12: true,
   });
 
   return (
