@@ -168,25 +168,6 @@ export default function FoodLogDetailPage() {
               </div>
             </div>
           )}
-
-          {/* Metadata Card */}
-          <div className="bg-gray-50 rounded-xl border border-gray-200 p-6">
-            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
-              {t.metadata || 'Information'}
-            </h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600">ID:</span>
-                <span className="text-gray-900 font-mono text-xs">{foodLog.id}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">{t.createdAt || 'Created'}:</span>
-                <span className="text-gray-900">
-                  {new Date(foodLog.created_at).toLocaleString()}
-                </span>
-              </div>
-            </div>
-          </div>
         </div>
       </main>
     </div>
