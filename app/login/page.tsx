@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import ErrorAlert from '@/components/ErrorAlert';
+import AuthSkeleton from '@/components/AuthSkeleton';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {
     checkAuthStatus();
@@ -27,6 +29,7 @@ export default function LoginPage() {
       router.push('/dashboard');
     } catch (err) {
       // User is not signed in, stay on login page
+      setCheckingAuth(false);
     }
   };
 
@@ -44,6 +47,10 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  if (checkingAuth) {
+    return <AuthSkeleton />;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 px-4">
