@@ -9,20 +9,26 @@ export default function DeleteButton({
   size = 'md',
   className = ''
 }: DeleteButtonProps) {
-  const sizeClasses = {
-    sm: 'p-1 w-4 h-4',
-    md: 'p-1.5 w-4 h-4 sm:w-5 sm:h-5',
-    lg: 'p-2 w-6 h-6'
+  const buttonClasses = {
+    sm: 'p-1.5',
+    md: 'p-2',
+    lg: 'p-3'
+  };
+
+  const iconClasses = {
+    sm: 'w-4 h-4',
+    md: 'w-5 h-5',
+    lg: 'w-7 h-7'
   };
 
   return (
     <button
       onClick={onClick}
-      className={`text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors ${className}`}
+      className={`${buttonClasses[size]} text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors ${className}`}
       aria-label="Delete"
     >
       <svg 
-        className={sizeClasses[size]} 
+        className={iconClasses[size]} 
         fill="none" 
         stroke="currentColor" 
         viewBox="0 0 24 24"
