@@ -119,32 +119,24 @@ export default function FoodLogDetailPage() {
         )}
 
         {/* Photo */}
-        {(foodLog.photo_url || (foodLog.photos && foodLog.photos.length > 0)) && (
+        {foodLog.photos && foodLog.photos.length > 0 && (
           <div className="bg-white rounded-xl shadow-md p-6 mb-6">
             <h2 className="text-xl font-bold text-gray-900 mb-3">📷 {t.photos || 'Foto'}</h2>
             {(() => {
-              const photoUrl = foodLog.photo_url || (foodLog.photos && foodLog.photos[0]?.path);
-              console.log('Trying to load photo from:', photoUrl);
-              console.log('Full photo object:', foodLog.photos && foodLog.photos[0]);
+              const photo = foodLog.photos[0];
+              console.log('Photo object:', photo);
               
-              if (!photoUrl) {
-                return <p className="text-gray-500">No se pudo cargar la foto</p>;
-              }
-              
-              // Check if it's a full URL or just a path
-              const imageUrl = photoUrl.startsWith('http') 
-                ? photoUrl 
-                : `${process.env.NEXT_PUBLIC_API_URL || ''}${photoUrl}`;
-              
-              console.log('Final image URL:', imageUrl);
+              // The photo is stored in S3, we need to get it through the photos endpoint
+              const photoApiUrl = `${process.env.NEXT_PUBLIC_API_URL}/photos/${photo.id}`;
+              console.log('Loading photo from API:', photoApiUrl);
               
               return (
                 <img
-                  src={imageUrl}
+                  src={photoApiUrl}
                   alt="Food"
                   className="w-full rounded-lg"
                   onError={(e) => {
-                    console.error('Failed to load image from:', imageUrl);
+                    console.error('Failed to load image from API:', photoApiUrl);
                     e.currentTarget.style.display = 'none';
                   }}
                 />
