@@ -291,17 +291,22 @@ export default function HealthDashboardPage() {
         </div>
 
         {/* Recent Exercise */}
-        {exercises.length > 0 && (
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold text-gray-900">{t.exercises}</h3>
-              <Link
-                href="/dashboard/exercise/new"
-                className="text-green-600 hover:text-green-700 font-medium"
-              >
-                + {t.addExercise}
-              </Link>
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-bold text-gray-900">{t.exercises}</h3>
+            <Link
+              href="/dashboard/exercise/new"
+              className="text-green-600 hover:text-green-700 font-medium"
+            >
+              + {t.addExercise}
+            </Link>
+          </div>
+          
+          {exercisesLoading ? (
+            <div className="text-center py-4">
+              <LoadingSpinner />
             </div>
+          ) : exercises.length > 0 ? (
             <div className="space-y-3">
               {exercises.slice(0, 5).map((exercise: any) => (
                 <div key={exercise.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
@@ -330,8 +335,13 @@ export default function HealthDashboardPage() {
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <p className="text-lg mb-2">🏃</p>
+              <p>{t.noExerciseLogs}</p>
+            </div>
+          )}
+        </div>
 
         {/* Action Buttons */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
