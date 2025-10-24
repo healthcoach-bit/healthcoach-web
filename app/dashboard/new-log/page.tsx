@@ -112,12 +112,9 @@ export default function NewLogPage() {
         timestamp: localISOTime,
       };
       
-      console.log('Creating food log with payload:', payload);
-      
       const foodLogResponse = await createFoodLog.mutateAsync(payload);
 
       const foodLogId = foodLogResponse.foodLog.id;
-      console.log('Food log created:', foodLogResponse.foodLog);
 
       // Step 2: Upload photo if provided
       if (photo) {

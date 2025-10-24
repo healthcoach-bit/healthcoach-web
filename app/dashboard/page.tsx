@@ -42,17 +42,17 @@ export default function DashboardPage() {
     
     // Check if it's today
     if (date.toDateString() === today.toDateString()) {
-      return `${t.today} ${date.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' })}`;
+      return `${t.today} ${date.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit', hour12: true })}`;
     }
     
     // Check if it's yesterday
     if (date.toDateString() === yesterday.toDateString()) {
-      return `${t.yesterday} ${date.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' })}`;
+      return `${t.yesterday} ${date.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit', hour12: true })}`;
     }
     
     // Other dates: show short date + time
     const shortDate = date.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
-    const time = date.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' });
+    const time = date.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit', hour12: true });
     return `${shortDate} ${time}`;
   };
 

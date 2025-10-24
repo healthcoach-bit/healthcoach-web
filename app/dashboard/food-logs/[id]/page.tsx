@@ -18,17 +18,6 @@ export default function FoodLogDetailPage() {
 
   const { data: foodLog, isLoading, error } = useFoodLog(foodLogId);
 
-  // Debug: Log food log data
-  useEffect(() => {
-    if (foodLog) {
-      console.log('Food Log Data:', foodLog);
-      console.log('Timestamp:', foodLog.timestamp);
-      console.log('Total Calories:', foodLog.total_calories);
-      console.log('Photo URL:', foodLog.photo_url);
-      console.log('Has photos array?:', foodLog.photos);
-    }
-  }, [foodLog]);
-
   if (isCheckingAuth || isLoading) {
     return <LoadingSpinner fullScreen />;
   }
@@ -71,7 +60,7 @@ export default function FoodLogDetailPage() {
                 {formatDate(foodLog.timestamp, locale)}
                 {foodLog.timestamp && (
                   <span className="ml-2 text-gray-500">
-                    • {new Date(foodLog.timestamp).toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' })}
+                    • {new Date(foodLog.timestamp).toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit', hour12: true })}
                   </span>
                 )}
               </p>
@@ -124,8 +113,6 @@ export default function FoodLogDetailPage() {
             <h2 className="text-xl font-bold text-gray-900 mb-3">📷 {t.photos || 'Foto'}</h2>
             {(() => {
               const photo = foodLog.photos[0];
-              console.log('Photo object:', photo);
-              console.log('Photo URL from backend:', photo.url);
               
               if (!photo.url) {
                 return <p className="text-gray-500">No se pudo cargar la foto (URL no disponible)</p>;
@@ -137,7 +124,6 @@ export default function FoodLogDetailPage() {
                   alt="Food"
                   className="w-full rounded-lg"
                   onError={(e) => {
-                    console.error('Failed to load image from S3:', photo.url);
                     e.currentTarget.style.display = 'none';
                   }}
                 />

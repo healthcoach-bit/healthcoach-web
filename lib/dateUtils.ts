@@ -43,7 +43,7 @@ export function formatShortDate(timestamp: string | undefined | null, locale: st
 
 /**
  * Format timestamp to localized time string with AM/PM
- * Example: "7:46 p. m." or "7:46 PM"
+ * Example: "7:46 PM" or "7:46 p. m."
  */
 export function formatTime(timestamp: string | undefined | null, locale: string): string {
   if (!timestamp) {
