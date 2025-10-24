@@ -105,6 +105,7 @@ export const translations = {
     // Health Profile
     healthProfile: 'Health Profile',
     myHealthProfile: 'My Health Profile',
+    createProfilePrompt: 'Create your health profile to get started',
     editProfile: 'Edit Profile',
     saveProfile: 'Save Profile',
     saving: 'Saving...',
@@ -164,6 +165,9 @@ export const translations = {
     trends: 'Trends',
     bmi: 'BMI',
     healthScore: 'Health Score',
+    select: 'Select...',
+    typeAndPressEnter: 'Type and press Enter',
+    add: 'Add',
   },
   es: {
     // Navigation
@@ -269,6 +273,7 @@ export const translations = {
     // Health Profile
     healthProfile: 'Perfil de Salud',
     myHealthProfile: 'Mi Perfil de Salud',
+    createProfilePrompt: 'Crea tu perfil de salud para comenzar',
     editProfile: 'Editar Perfil',
     saveProfile: 'Guardar Perfil',
     saving: 'Guardando...',
@@ -328,6 +333,9 @@ export const translations = {
     trends: 'Tendencias',
     bmi: 'IMC',
     healthScore: 'Puntuación de Salud',
+    select: 'Seleccionar...',
+    typeAndPressEnter: 'Escribe y presiona Enter',
+    add: 'Agregar',
   },
 };
 

@@ -171,7 +171,7 @@ export default function HealthProfilePage() {
                   onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
                 >
-                  <option value="">Select...</option>
+                  <option value="">{t.select}</option>
                   <option value="male">{t.male}</option>
                   <option value="female">{t.female}</option>
                   <option value="other">{t.other}</option>
@@ -252,7 +252,7 @@ export default function HealthProfilePage() {
                       }
                     }}
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                    placeholder="Type and press Enter"
+                    placeholder={t.typeAndPressEnter}
                   />
                   <button
                     type="button"
@@ -262,7 +262,7 @@ export default function HealthProfilePage() {
                     }}
                     className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
                   >
-                    Add
+                    {t.add}
                   </button>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -301,7 +301,7 @@ export default function HealthProfilePage() {
                   onChange={(e) => setFormData({ ...formData, activityLevel: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
                 >
-                  <option value="">Select...</option>
+                  <option value="">{t.select}</option>
                   <option value="sedentary">{t.sedentary}</option>
                   <option value="light">{t.lightActivity}</option>
                   <option value="moderate">{t.moderateActivity}</option>
@@ -319,7 +319,7 @@ export default function HealthProfilePage() {
                   onChange={(e) => setFormData({ ...formData, smokingStatus: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
                 >
-                  <option value="">Select...</option>
+                  <option value="">{t.select}</option>
                   <option value="never">{t.never}</option>
                   <option value="former">{t.former}</option>
                   <option value="current">{t.current}</option>
@@ -335,7 +335,7 @@ export default function HealthProfilePage() {
                   onChange={(e) => setFormData({ ...formData, alcoholConsumption: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
                 >
-                  <option value="">Select...</option>
+                  <option value="">{t.select}</option>
                   <option value="none">{t.none}</option>
                   <option value="occasional">{t.occasional}</option>
                   <option value="moderate">{t.moderate}</option>

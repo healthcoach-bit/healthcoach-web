@@ -81,7 +81,7 @@ export default function HealthDashboardPage() {
         <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           <div className="text-center py-12">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">{t.myHealthProfile}</h2>
-            <p className="text-gray-600 mb-8">Create your health profile to get started</p>
+            <p className="text-gray-600 mb-8">{t.createProfilePrompt}</p>
             <Link
               href="/dashboard/health-profile"
               className="inline-block px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700"
