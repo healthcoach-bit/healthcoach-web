@@ -58,7 +58,14 @@ export const apiClient = {
     totalCalories?: number;
     timestamp?: string;
   }) {
-    const response = await api.post('/food-logs', data);
+    // Convert camelCase to snake_case for API
+    const payload = {
+      meal_type: data.mealType,
+      notes: data.notes,
+      total_calories: data.totalCalories,
+      timestamp: data.timestamp,
+    };
+    const response = await api.post('/food-logs', payload);
     return response.data;
   },
 

@@ -119,13 +119,17 @@ export default function FoodLogDetailPage() {
         )}
 
         {/* Photo */}
-        {foodLog.photo_url && (
+        {(foodLog.photo_url || (foodLog.photos && foodLog.photos.length > 0)) && (
           <div className="bg-white rounded-xl shadow-md p-6 mb-6">
             <h2 className="text-xl font-bold text-gray-900 mb-3">📷 {t.photos || 'Foto'}</h2>
             <img
-              src={foodLog.photo_url}
+              src={foodLog.photo_url || foodLog.photos[0].path}
               alt="Food"
               className="w-full rounded-lg"
+              onError={(e) => {
+                console.error('Error loading image:', e);
+                e.currentTarget.style.display = 'none';
+              }}
             />
           </div>
         )}
