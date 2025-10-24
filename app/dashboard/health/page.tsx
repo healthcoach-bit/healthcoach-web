@@ -10,6 +10,7 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import ErrorAlert from '@/components/ErrorAlert';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { useHealthMetrics } from '@/hooks/useHealthMetrics';
+import { useExerciseLogs } from '@/hooks/useExercise';
 import { formatDate } from '@/lib/dateUtils';
 
 export default function HealthDashboardPage() {
@@ -17,6 +18,7 @@ export default function HealthDashboardPage() {
   const { t, locale } = useLanguage();
   const { data: profile, isLoading: profileLoading, error: profileError } = useHealthProfile();
   const { data: metrics = [], isLoading: metricsLoading, error: metricsError } = useHealthMetrics('weight', 10);
+  const { data: exercises = [], isLoading: exercisesLoading } = useExerciseLogs(5);
 
   useEffect(() => {
     checkAuth();
@@ -288,13 +290,64 @@ export default function HealthDashboardPage() {
           </div>
         </div>
 
-        {/* Add Metric Button */}
-        <div className="text-center">
+        {/* Recent Exercise */}
+        {exercises.length > 0 && (
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold text-gray-900">{t.exercises}</h3>
+              <Link
+                href="/dashboard/exercise/new"
+                className="text-green-600 hover:text-green-700 font-medium"
+              >
+                + {t.addExercise}
+              </Link>
+            </div>
+            <div className="space-y-3">
+              {exercises.slice(0, 5).map((exercise: any) => (
+                <div key={exercise.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">🏃</span>
+                    <div>
+                      <p className="font-medium text-gray-900 capitalize">
+                        {t[exercise.exercise_type as keyof typeof t] || exercise.exercise_type}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {exercise.duration_minutes} {t.minutes}
+                        {exercise.intensity && ` • ${t[exercise.intensity as keyof typeof t] || exercise.intensity}`}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-gray-500">
+                      {formatDate(exercise.performed_at, locale)}
+                    </p>
+                    {exercise.calories_burned && (
+                      <p className="text-sm text-orange-600 font-medium">
+                        {exercise.calories_burned} {t.calories}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Link
             href="/dashboard/health-metrics/new"
-            className="inline-block px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-lg font-semibold"
+            className="flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-lg font-semibold"
           >
-            + {t.addMetric}
+            <span>📊</span>
+            <span>+ {t.addMetric}</span>
+          </Link>
+          <Link
+            href="/dashboard/exercise/new"
+            className="flex items-center justify-center gap-2 px-8 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 text-lg font-semibold"
+          >
+            <span>🏃</span>
+            <span>+ {t.addExercise}</span>
           </Link>
         </div>
       </main>
