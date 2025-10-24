@@ -211,6 +211,24 @@ export default function HealthDashboardPage() {
           </div>
         </div>
 
+        {/* Action Buttons */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          <Link
+            href="/dashboard/health-metrics/new"
+            className="flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-lg font-semibold"
+          >
+            <span>📊</span>
+            <span>+ {t.addMetric}</span>
+          </Link>
+          <Link
+            href="/dashboard/exercise/new"
+            className="flex items-center justify-center gap-2 px-8 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 text-lg font-semibold"
+          >
+            <span>🏃</span>
+            <span>+ {t.addExercise}</span>
+          </Link>
+        </div>
+
         {/* Weight Progress Chart */}
         {metrics.length > 0 && (
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
@@ -320,7 +338,7 @@ export default function HealthDashboardPage() {
         </div>
 
         {/* Recent Exercise */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-bold text-gray-900">{t.exercises}</h3>
             <Link
@@ -330,7 +348,7 @@ export default function HealthDashboardPage() {
               + {t.addExercise}
             </Link>
           </div>
-          
+
           {exercisesError ? (
             <div className="text-center py-8 text-red-600">
               <p>Error loading exercises: {String(exercisesError)}</p>
@@ -383,24 +401,6 @@ export default function HealthDashboardPage() {
               <p>{t.noExerciseLogs}</p>
             </div>
           )}
-        </div>
-
-        {/* Action Buttons */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Link
-            href="/dashboard/health-metrics/new"
-            className="flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-lg font-semibold"
-          >
-            <span>📊</span>
-            <span>+ {t.addMetric}</span>
-          </Link>
-          <Link
-            href="/dashboard/exercise/new"
-            className="flex items-center justify-center gap-2 px-8 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 text-lg font-semibold"
-          >
-            <span>🏃</span>
-            <span>+ {t.addExercise}</span>
-          </Link>
         </div>
       </main>
     </div>

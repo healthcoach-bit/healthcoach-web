@@ -234,6 +234,17 @@ export const translations = {
     saveMetric: 'Save Metric',
     savingMetric: 'Saving Metric...',
     confirmDelete: 'Are you sure you want to delete this?',
+    
+    // Dashboard
+    dailySummary: 'Daily Summary',
+    meals: 'meals',
+    kcal: 'kcal',
+    protein: 'Protein',
+    carbs: 'Carbs',
+    fat: 'Fat',
+    recentMeals: 'Recent Meals',
+    viewAll: 'View All',
+    viewAllMeals: 'View Complete History',
   },
   es: {
     // Navigation
@@ -468,6 +479,17 @@ export const translations = {
     saveMetric: 'Guardar Métrica',
     savingMetric: 'Guardando Métrica...',
     confirmDelete: '¿Estás seguro de que quieres eliminar esto?',
+    
+    // Dashboard
+    dailySummary: 'Resumen del Día',
+    meals: 'comidas',
+    kcal: 'kcal',
+    protein: 'Proteína',
+    carbs: 'Carbos',
+    fat: 'Grasa',
+    recentMeals: 'Últimas Comidas',
+    viewAll: 'Ver Todas',
+    viewAllMeals: 'Ver Historial Completo',
   },
 };
 
