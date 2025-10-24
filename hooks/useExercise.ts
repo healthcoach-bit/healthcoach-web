@@ -31,17 +31,24 @@ async function getAuthToken(): Promise<string> {
 
 async function fetchExerciseLogs(limit: number = 30): Promise<ExerciseLog[]> {
   const token = await getAuthToken();
+  console.log('Fetching exercises with token:', token.substring(0, 20) + '...');
+  
   const response = await fetch(`${API_ENDPOINT}/exercise?limit=${limit}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
 
+  console.log('Exercise response status:', response.status);
+
   if (!response.ok) {
-    throw new Error('Failed to fetch exercise logs');
+    const errorText = await response.text();
+    console.error('Exercise fetch error:', errorText);
+    throw new Error(`Failed to fetch exercise logs: ${response.status}`);
   }
 
   const data = await response.json();
+  console.log('Exercises received:', data.exercises?.length || 0);
   return data.exercises || [];
 }
 

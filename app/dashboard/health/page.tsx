@@ -18,7 +18,7 @@ export default function HealthDashboardPage() {
   const { t, locale } = useLanguage();
   const { data: profile, isLoading: profileLoading, error: profileError } = useHealthProfile();
   const { data: metrics = [], isLoading: metricsLoading, error: metricsError } = useHealthMetrics('weight', 10);
-  const { data: exercises = [], isLoading: exercisesLoading } = useExerciseLogs(5);
+  const { data: exercises = [], isLoading: exercisesLoading, error: exercisesError } = useExerciseLogs(5);
 
   useEffect(() => {
     checkAuth();
@@ -26,7 +26,8 @@ export default function HealthDashboardPage() {
 
   const checkAuth = async () => {
     try {
-      await getCurrentUser();
+      const user = await getCurrentUser();
+      console.log('Current user:', user.userId, user.signInDetails?.loginId);
     } catch (err) {
       router.push('/login');
     }
@@ -302,7 +303,11 @@ export default function HealthDashboardPage() {
             </Link>
           </div>
           
-          {exercisesLoading ? (
+          {exercisesError ? (
+            <div className="text-center py-8 text-red-600">
+              <p>Error loading exercises: {String(exercisesError)}</p>
+            </div>
+          ) : exercisesLoading ? (
             <div className="text-center py-4">
               <LoadingSpinner />
             </div>
