@@ -55,6 +55,7 @@ export const apiClient = {
   async createFoodLog(data: {
     mealType: string;
     notes?: string;
+    totalCalories?: number;
     timestamp?: string;
   }) {
     const response = await api.post('/food-logs', data);

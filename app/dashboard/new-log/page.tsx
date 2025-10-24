@@ -41,6 +41,7 @@ export default function NewLogPage() {
   
   const [mealType, setMealType] = useState('breakfast');
   const [notes, setNotes] = useState('');
+  const [calories, setCalories] = useState('');
   const [timestamp, setTimestamp] = useState(getLocalDateTimeString());
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -107,6 +108,7 @@ export default function NewLogPage() {
       const foodLogResponse = await createFoodLog.mutateAsync({
         mealType,
         notes: notes.trim() || undefined,
+        totalCalories: calories ? parseInt(calories) : undefined,
         timestamp: localISOTime,
       });
 
@@ -172,6 +174,18 @@ export default function NewLogPage() {
               value={timestamp}
               onChange={(e) => setTimestamp(e.target.value)}
               required
+            />
+
+            {/* Calories */}
+            <FormInput
+              id="calories"
+              type="number"
+              label={`${t.calories} (${t.optional})`}
+              value={calories}
+              onChange={(e) => setCalories(e.target.value)}
+              placeholder="500"
+              min="0"
+              step="1"
             />
 
             {/* Photo Upload */}

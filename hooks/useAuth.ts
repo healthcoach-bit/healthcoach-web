@@ -17,12 +17,16 @@ export function useAuth() {
 
   const checkAuth = async () => {
     try {
-      await getCurrentUser();
-      setIsAuthenticated(true);
-      setIsCheckingAuth(false);
+      const user = await getCurrentUser();
+      if (user) {
+        setIsAuthenticated(true);
+      }
     } catch (err) {
-      setIsCheckingAuth(false);
+      // Only redirect if we're sure there's no valid session
+      console.log('Auth check failed, redirecting to login');
       router.push('/login');
+    } finally {
+      setIsCheckingAuth(false);
     }
   };
 

@@ -40,6 +40,7 @@ export function useCreateFoodLog() {
     mutationFn: (data: {
       mealType: string;
       notes?: string;
+      totalCalories?: number;
       timestamp?: string;
     }) => apiClient.createFoodLog(data),
     onSuccess: () => {
