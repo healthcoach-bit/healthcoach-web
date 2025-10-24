@@ -246,6 +246,7 @@ export const translations = {
     viewAll: 'View All',
     viewAllMeals: 'View Complete History',
     calorieGoal: 'Calorie Goal',
+    calorieGoalDaily: 'Daily Calorie Goal',
     nutritionalInfo: 'Nutritional Information',
   },
   es: {
@@ -493,6 +494,7 @@ export const translations = {
     viewAll: 'Ver Todas',
     viewAllMeals: 'Ver Historial Completo',
     calorieGoal: 'Objetivo de Calorías',
+    calorieGoalDaily: 'Objetivo de Calorías día',
     nutritionalInfo: 'Información Nutricional',
   },
 };

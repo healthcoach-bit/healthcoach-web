@@ -83,6 +83,7 @@ export default function HealthProfilePage() {
         currentWeightKg: formData.currentWeightKg ? parseFloat(formData.currentWeightKg) : undefined,
         heightCm: formData.heightCm ? parseFloat(formData.heightCm) : undefined,
         targetWeightKg: formData.targetWeightKg ? parseFloat(formData.targetWeightKg) : undefined,
+        calorieGoal: formData.calorieGoal ? parseInt(formData.calorieGoal) : undefined,
         medicalConditions: formData.medicalConditions.length > 0 ? formData.medicalConditions : undefined,
         allergies: formData.allergies.length > 0 ? formData.allergies : undefined,
         medications: formData.medications.length > 0 ? formData.medications : undefined,
@@ -211,7 +212,7 @@ export default function HealthProfilePage() {
               <FormInput
                 type="number"
                 step="1"
-                label={`${t.calorieGoal || 'Objetivo de Calorías'} (${t.kcal || 'kcal'})`}
+                label={`${t.calorieGoalDaily || 'Objetivo de Calorías día'} (${t.kcal || 'kcal'})`}
                 value={formData.calorieGoal}
                 onChange={(e) => setFormData({ ...formData, calorieGoal: e.target.value })}
                 placeholder="2500"
