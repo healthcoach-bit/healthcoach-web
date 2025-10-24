@@ -1,8 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { getCurrentUser } from 'aws-amplify/auth';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import DashboardHeader from '@/components/DashboardHeader';
@@ -11,14 +8,14 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import ErrorAlert from '@/components/ErrorAlert';
 import { useFoodLogs } from '@/hooks/useFoodLogs';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
+import { useAuth } from '@/hooks/useAuth';
 import { useUIStore } from '@/store/ui-store';
 
 export default function DashboardPage() {
-  const router = useRouter();
   const { t, locale } = useLanguage();
   const dateFilter = useUIStore((state) => state.dateFilter);
   const openDeleteModal = useUIStore((state) => state.openDeleteModal);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const { isCheckingAuth } = useAuth();
   
   // React Query hooks
   const { data: foodLogs = [], isLoading, error } = useFoodLogs(dateFilter);
@@ -57,19 +54,6 @@ export default function DashboardPage() {
     const shortDate = date.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
     const time = date.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' });
     return `${shortDate} ${time}`;
-  };
-
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
-    try {
-      await getCurrentUser();
-      setIsCheckingAuth(false);
-    } catch (err) {
-      router.push('/login');
-    }
   };
 
   if (isCheckingAuth || isLoading) {

@@ -1,27 +1,22 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { getCurrentUser } from 'aws-amplify/auth';
-import { useRouter, useParams } from 'next/navigation';
+import { useEffect } from 'react';
+import { useParams } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import DashboardHeader from '@/components/DashboardHeader';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ErrorAlert from '@/components/ErrorAlert';
 import { useFoodLog } from '@/hooks/useFoodLogs';
+import { useAuth } from '@/hooks/useAuth';
 import { formatDate } from '@/lib/dateUtils';
 
 export default function FoodLogDetailPage() {
-  const router = useRouter();
   const params = useParams();
   const { t, locale } = useLanguage();
   const foodLogId = params.id as string;
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const { isCheckingAuth } = useAuth();
 
   const { data: foodLog, isLoading, error } = useFoodLog(foodLogId);
-
-  useEffect(() => {
-    checkAuth();
-  }, []);
 
   // Debug: Log food log data
   useEffect(() => {
@@ -31,15 +26,6 @@ export default function FoodLogDetailPage() {
       console.log('Timestamp type:', typeof foodLog.timestamp);
     }
   }, [foodLog]);
-
-  const checkAuth = async () => {
-    try {
-      await getCurrentUser();
-      setIsCheckingAuth(false);
-    } catch (err) {
-      router.push('/login');
-    }
-  };
 
   if (isCheckingAuth || isLoading) {
     return <LoadingSpinner fullScreen />;
