@@ -4,6 +4,7 @@ interface FormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   helperText?: string;
+  wrapperClassName?: string;
 }
 
 export default function FormInput({ 
@@ -11,10 +12,11 @@ export default function FormInput({
   error, 
   helperText,
   className = '',
+  wrapperClassName = '',
   ...props 
 }: FormInputProps) {
   return (
-    <div className="w-full">
+    <div className={wrapperClassName || 'w-full'}>
       {label && (
         <label className="block text-sm font-medium text-gray-700 mb-2">
           {label}

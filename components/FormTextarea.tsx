@@ -4,6 +4,7 @@ interface FormTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaEle
   label?: string;
   error?: string;
   helperText?: string;
+  wrapperClassName?: string;
 }
 
 export default function FormTextarea({ 
@@ -11,10 +12,11 @@ export default function FormTextarea({
   error, 
   helperText,
   className = '',
+  wrapperClassName = '',
   ...props 
 }: FormTextareaProps) {
   return (
-    <div className="w-full">
+    <div className={wrapperClassName || 'w-full'}>
       {label && (
         <label className="block text-sm font-medium text-gray-700 mb-2">
           {label}

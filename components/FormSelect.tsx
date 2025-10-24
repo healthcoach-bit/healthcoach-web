@@ -5,6 +5,7 @@ interface FormSelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> 
   error?: string;
   helperText?: string;
   options?: { value: string; label: string }[];
+  wrapperClassName?: string;
 }
 
 export default function FormSelect({ 
@@ -14,10 +15,11 @@ export default function FormSelect({
   options,
   children,
   className = '',
+  wrapperClassName = '',
   ...props 
 }: FormSelectProps) {
   return (
-    <div className="w-full">
+    <div className={wrapperClassName || 'w-full'}>
       {label && (
         <label className="block text-sm font-medium text-gray-700 mb-2">
           {label}

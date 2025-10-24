@@ -231,7 +231,7 @@ export default function HealthProfilePage() {
                       }
                     }}
                     placeholder={t.typeAndPressEnter}
-                    className="flex-1"
+                    wrapperClassName="flex-1"
                   />
                   <button
                     type="button"
@@ -239,7 +239,7 @@ export default function HealthProfilePage() {
                       addItem('medicalConditions', newCondition);
                       setNewCondition('');
                     }}
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 h-[42px] self-end"
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
                   >
                     {t.add}
                   </button>

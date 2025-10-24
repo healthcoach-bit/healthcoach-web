@@ -52,6 +52,11 @@ async function fetchHealthProfile(): Promise<HealthProfile | null> {
     },
   });
 
+  // If profile doesn't exist yet (404), return null instead of throwing error
+  if (response.status === 404) {
+    return null;
+  }
+
   if (!response.ok) {
     throw new Error('Failed to fetch health profile');
   }
