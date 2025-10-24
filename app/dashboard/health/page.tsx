@@ -256,7 +256,7 @@ export default function HealthDashboardPage() {
                   </div>
                   <button
                     onClick={() => handleDeleteMetric(metric.id)}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity p-2 text-red-600 hover:bg-red-50 rounded"
+                    className="sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-2 text-red-600 hover:bg-red-50 rounded"
                     title={t.delete}
                   >
                     🗑️
@@ -386,7 +386,7 @@ export default function HealthDashboardPage() {
                     </div>
                     <button
                       onClick={() => handleDeleteExercise(exercise.id)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity p-2 text-red-600 hover:bg-red-50 rounded"
+                      className="sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-2 text-red-600 hover:bg-red-50 rounded"
                       title={t.delete}
                     >
                       🗑️
