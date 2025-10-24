@@ -9,8 +9,8 @@ import DashboardHeader from '@/components/DashboardHeader';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ErrorAlert from '@/components/ErrorAlert';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
-import { useHealthMetrics } from '@/hooks/useHealthMetrics';
-import { useExerciseLogs } from '@/hooks/useExercise';
+import { useHealthMetrics, useDeleteHealthMetric } from '@/hooks/useHealthMetrics';
+import { useExerciseLogs, useDeleteExerciseLog } from '@/hooks/useExercise';
 import { formatDate } from '@/lib/dateUtils';
 
 export default function HealthDashboardPage() {
@@ -19,6 +19,8 @@ export default function HealthDashboardPage() {
   const { data: profile, isLoading: profileLoading, error: profileError } = useHealthProfile();
   const { data: metrics = [], isLoading: metricsLoading, error: metricsError } = useHealthMetrics('weight', 10);
   const { data: exercises = [], isLoading: exercisesLoading, error: exercisesError } = useExerciseLogs(5);
+  const deleteMetric = useDeleteHealthMetric();
+  const deleteExercise = useDeleteExerciseLog();
 
   useEffect(() => {
     checkAuth();
@@ -26,8 +28,7 @@ export default function HealthDashboardPage() {
 
   const checkAuth = async () => {
     try {
-      const user = await getCurrentUser();
-      console.log('Current user:', user.userId, user.signInDetails?.loginId);
+      await getCurrentUser();
     } catch (err) {
       router.push('/login');
     }
@@ -37,6 +38,26 @@ export default function HealthDashboardPage() {
     if (!profile?.current_weight_kg || !profile?.height_cm) return null;
     const heightM = profile.height_cm / 100;
     return (profile.current_weight_kg / (heightM * heightM)).toFixed(1);
+  };
+
+  const handleDeleteMetric = async (id: string) => {
+    if (confirm(t.confirmDelete || '¿Confirmar eliminación?')) {
+      try {
+        await deleteMetric.mutateAsync(id);
+      } catch (err) {
+        console.error('Error deleting metric:', err);
+      }
+    }
+  };
+
+  const handleDeleteExercise = async (id: string) => {
+    if (confirm(t.confirmDelete || '¿Confirmar eliminación?')) {
+      try {
+        await deleteExercise.mutateAsync(id);
+      } catch (err) {
+        console.error('Error deleting exercise:', err);
+      }
+    }
   };
 
   const getBMICategory = (bmi: number) => {
@@ -196,7 +217,7 @@ export default function HealthDashboardPage() {
             <h2 className="text-xl font-bold text-gray-900 mb-4">{t.progress}</h2>
             <div className="space-y-4">
               {metrics.slice(0, 5).map((metric, index) => (
-                <div key={metric.id} className="flex items-center gap-4">
+                <div key={metric.id} className="flex items-center gap-4 group">
                   <div className="w-32 text-sm text-gray-600">
                     {formatDate(metric.measured_at, locale)}
                   </div>
@@ -215,6 +236,13 @@ export default function HealthDashboardPage() {
                       </span>
                     </div>
                   </div>
+                  <button
+                    onClick={() => handleDeleteMetric(metric.id)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity p-2 text-red-600 hover:bg-red-50 rounded"
+                    title={t.delete}
+                  >
+                    🗑️
+                  </button>
                 </div>
               ))}
             </div>
@@ -314,7 +342,7 @@ export default function HealthDashboardPage() {
           ) : exercises.length > 0 ? (
             <div className="space-y-3">
               {exercises.slice(0, 5).map((exercise: any) => (
-                <div key={exercise.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div key={exercise.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg group hover:bg-gray-100 transition-colors">
                   <div className="flex items-center gap-3">
                     <span className="text-2xl">🏃</span>
                     <div>
@@ -327,15 +355,24 @@ export default function HealthDashboardPage() {
                       </p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm text-gray-500">
-                      {formatDate(exercise.performed_at, locale)}
-                    </p>
-                    {exercise.calories_burned && (
-                      <p className="text-sm text-orange-600 font-medium">
-                        {exercise.calories_burned} {t.calories}
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <p className="text-sm text-gray-500">
+                        {formatDate(exercise.performed_at, locale)}
                       </p>
-                    )}
+                      {exercise.calories_burned && (
+                        <p className="text-sm text-orange-600 font-medium">
+                          {exercise.calories_burned} {t.calories}
+                        </p>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => handleDeleteExercise(exercise.id)}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-2 text-red-600 hover:bg-red-50 rounded"
+                      title={t.delete}
+                    >
+                      🗑️
+                    </button>
                   </div>
                 </div>
               ))}

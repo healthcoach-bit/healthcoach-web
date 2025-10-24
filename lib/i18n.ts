@@ -233,6 +233,7 @@ export const translations = {
     totalCholesterol: 'Total Cholesterol',
     saveMetric: 'Save Metric',
     savingMetric: 'Saving Metric...',
+    confirmDelete: 'Are you sure you want to delete this?',
   },
   es: {
     // Navigation
@@ -466,6 +467,7 @@ export const translations = {
     totalCholesterol: 'Colesterol Total',
     saveMetric: 'Guardar Métrica',
     savingMetric: 'Guardando Métrica...',
+    confirmDelete: '¿Estás seguro de que quieres eliminar esto?',
   },
 };
 
