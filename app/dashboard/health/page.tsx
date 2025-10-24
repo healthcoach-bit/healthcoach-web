@@ -1,8 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { getCurrentUser } from 'aws-amplify/auth';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import DashboardHeader from '@/components/DashboardHeader';
@@ -13,27 +11,16 @@ import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { useHealthMetrics } from '@/hooks/useHealthMetrics';
 import { useExerciseLogs } from '@/hooks/useExercise';
 import { useUIStore } from '@/store/ui-store';
+import { useAuth } from '@/hooks/useAuth';
 import { formatDate } from '@/lib/dateUtils';
 
 export default function HealthDashboardPage() {
-  const router = useRouter();
   const { t, locale } = useLanguage();
+  const { isCheckingAuth } = useAuth();
   const { data: profile, isLoading: profileLoading, error: profileError } = useHealthProfile();
   const { data: metrics = [], isLoading: metricsLoading, error: metricsError } = useHealthMetrics('weight', 10);
   const { data: exercises = [], isLoading: exercisesLoading, error: exercisesError } = useExerciseLogs(5);
   const openDeleteModal = useUIStore((state) => state.openDeleteModal);
-
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
-    try {
-      await getCurrentUser();
-    } catch (err) {
-      router.push('/login');
-    }
-  };
 
   const calculateBMI = () => {
     if (!profile?.current_weight_kg || !profile?.height_cm) return null;
@@ -65,11 +52,11 @@ export default function HealthDashboardPage() {
   };
 
   const bmi = calculateBMI();
-  const bmiInfo = bmi ? getBMICategory(parseFloat(bmi)) : null;
+  const bmiCategory = bmi ? getBMICategory(parseFloat(bmi)) : null;
   const weightProgress = getWeightProgress();
   const weightTrend = getWeightTrend();
 
-  if (profileLoading || metricsLoading) {
+  if (isCheckingAuth || profileLoading || metricsLoading || exercisesLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <DashboardHeader showBackButton backHref="/dashboard" />
@@ -156,9 +143,9 @@ export default function HealthDashboardPage() {
             <div className="flex items-baseline gap-2">
               <span className="text-3xl font-bold text-gray-900">{bmi || '--'}</span>
             </div>
-            {bmiInfo && (
-              <span className={`inline-block mt-2 px-3 py-1 rounded-full text-sm ${bmiInfo.bg} ${bmiInfo.color}`}>
-                {bmiInfo.text}
+            {bmiCategory && (
+              <span className={`inline-block mt-2 px-3 py-1 rounded-full text-sm ${bmiCategory.bg} ${bmiCategory.color}`}>
+                {bmiCategory.text}
               </span>
             )}
           </div>

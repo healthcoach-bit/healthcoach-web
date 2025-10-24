@@ -35,7 +35,7 @@ export default function DeleteConfirmModal() {
       
       closeDeleteModal();
     } catch (error) {
-      console.error('Error deleting item:', error);
+      // Error is handled by React Query
     }
   };
 
