@@ -3,12 +3,16 @@
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useUIStore } from '@/store/ui-store';
 import { useDeleteFoodLog } from '@/hooks/useFoodLogs';
+import { useDeleteHealthMetric } from '@/hooks/useHealthMetrics';
+import { useDeleteExerciseLog } from '@/hooks/useExercise';
 
 export default function DeleteConfirmModal() {
   const { t } = useLanguage();
   const deleteModal = useUIStore((state) => state.deleteModal);
   const closeDeleteModal = useUIStore((state) => state.closeDeleteModal);
   const deleteFoodLog = useDeleteFoodLog();
+  const deleteHealthMetric = useDeleteHealthMetric();
+  const deleteExerciseLog = useDeleteExerciseLog();
 
   if (!deleteModal.isOpen) return null;
 
@@ -18,6 +22,10 @@ export default function DeleteConfirmModal() {
     try {
       if (deleteModal.itemType === 'foodLog') {
         await deleteFoodLog.mutateAsync(deleteModal.itemId);
+      } else if (deleteModal.itemType === 'healthMetric') {
+        await deleteHealthMetric.mutateAsync(deleteModal.itemId);
+      } else if (deleteModal.itemType === 'exerciseLog') {
+        await deleteExerciseLog.mutateAsync(deleteModal.itemId);
       }
       
       // Call success callback if provided (e.g., redirect)
@@ -73,17 +81,17 @@ export default function DeleteConfirmModal() {
           <div className="flex gap-3">
             <button
               onClick={closeDeleteModal}
-              disabled={deleteFoodLog.isPending}
+              disabled={deleteFoodLog.isPending || deleteHealthMetric.isPending || deleteExerciseLog.isPending}
               className="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {t.cancel || 'Cancelar'}
             </button>
             <button
               onClick={handleDelete}
-              disabled={deleteFoodLog.isPending}
+              disabled={deleteFoodLog.isPending || deleteHealthMetric.isPending || deleteExerciseLog.isPending}
               className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {deleteFoodLog.isPending ? (
+              {(deleteFoodLog.isPending || deleteHealthMetric.isPending || deleteExerciseLog.isPending) ? (
                 <>
                   <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />

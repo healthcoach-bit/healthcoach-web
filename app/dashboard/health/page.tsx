@@ -6,11 +6,13 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import DashboardHeader from '@/components/DashboardHeader';
+import DeleteConfirmModal from '@/components/DeleteConfirmModal';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ErrorAlert from '@/components/ErrorAlert';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
-import { useHealthMetrics, useDeleteHealthMetric } from '@/hooks/useHealthMetrics';
-import { useExerciseLogs, useDeleteExerciseLog } from '@/hooks/useExercise';
+import { useHealthMetrics } from '@/hooks/useHealthMetrics';
+import { useExerciseLogs } from '@/hooks/useExercise';
+import { useUIStore } from '@/store/ui-store';
 import { formatDate } from '@/lib/dateUtils';
 
 export default function HealthDashboardPage() {
@@ -19,8 +21,7 @@ export default function HealthDashboardPage() {
   const { data: profile, isLoading: profileLoading, error: profileError } = useHealthProfile();
   const { data: metrics = [], isLoading: metricsLoading, error: metricsError } = useHealthMetrics('weight', 10);
   const { data: exercises = [], isLoading: exercisesLoading, error: exercisesError } = useExerciseLogs(5);
-  const deleteMetric = useDeleteHealthMetric();
-  const deleteExercise = useDeleteExerciseLog();
+  const openDeleteModal = useUIStore((state) => state.openDeleteModal);
 
   useEffect(() => {
     checkAuth();
@@ -40,25 +41,6 @@ export default function HealthDashboardPage() {
     return (profile.current_weight_kg / (heightM * heightM)).toFixed(1);
   };
 
-  const handleDeleteMetric = async (id: string) => {
-    if (confirm(t.confirmDelete || '¿Confirmar eliminación?')) {
-      try {
-        await deleteMetric.mutateAsync(id);
-      } catch (err) {
-        console.error('Error deleting metric:', err);
-      }
-    }
-  };
-
-  const handleDeleteExercise = async (id: string) => {
-    if (confirm(t.confirmDelete || '¿Confirmar eliminación?')) {
-      try {
-        await deleteExercise.mutateAsync(id);
-      } catch (err) {
-        console.error('Error deleting exercise:', err);
-      }
-    }
-  };
 
   const getBMICategory = (bmi: number) => {
     if (bmi < 18.5) return { text: t.underweight, color: 'text-yellow-600', bg: 'bg-yellow-100' };
@@ -121,6 +103,7 @@ export default function HealthDashboardPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <DashboardHeader showBackButton backHref="/dashboard" />
+      <DeleteConfirmModal />
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header */}
@@ -255,7 +238,7 @@ export default function HealthDashboardPage() {
                     </div>
                   </div>
                   <button
-                    onClick={() => handleDeleteMetric(metric.id)}
+                    onClick={() => openDeleteModal(metric.id, 'healthMetric')}
                     className="sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-2 text-red-600 hover:bg-red-50 rounded"
                     title={t.delete}
                   >
@@ -385,7 +368,7 @@ export default function HealthDashboardPage() {
                       )}
                     </div>
                     <button
-                      onClick={() => handleDeleteExercise(exercise.id)}
+                      onClick={() => openDeleteModal(exercise.id, 'exerciseLog')}
                       className="sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-2 text-red-600 hover:bg-red-50 rounded"
                       title={t.delete}
                     >

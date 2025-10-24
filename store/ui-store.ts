@@ -21,10 +21,10 @@ interface UIState {
   deleteModal: {
     isOpen: boolean;
     itemId: string | null;
-    itemType: 'foodLog' | 'photo' | null;
+    itemType: 'foodLog' | 'photo' | 'healthMetric' | 'exerciseLog' | null;
     onSuccess?: () => void;
   };
-  openDeleteModal: (itemId: string, itemType: 'foodLog' | 'photo', onSuccess?: () => void) => void;
+  openDeleteModal: (itemId: string, itemType: 'foodLog' | 'photo' | 'healthMetric' | 'exerciseLog', onSuccess?: () => void) => void;
   closeDeleteModal: () => void;
 }
 
