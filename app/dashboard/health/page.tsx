@@ -37,10 +37,10 @@ export default function HealthDashboardPage() {
   };
 
   const getBMICategory = (bmi: number) => {
-    if (bmi < 18.5) return { text: 'Underweight', color: 'text-yellow-600', bg: 'bg-yellow-100' };
-    if (bmi < 25) return { text: 'Normal', color: 'text-green-600', bg: 'bg-green-100' };
-    if (bmi < 30) return { text: 'Overweight', color: 'text-orange-600', bg: 'bg-orange-100' };
-    return { text: 'Obese', color: 'text-red-600', bg: 'bg-red-100' };
+    if (bmi < 18.5) return { text: t.underweight, color: 'text-yellow-600', bg: 'bg-yellow-100' };
+    if (bmi < 25) return { text: t.normal, color: 'text-green-600', bg: 'bg-green-100' };
+    if (bmi < 30) return { text: t.overweight, color: 'text-orange-600', bg: 'bg-orange-100' };
+    return { text: t.obese, color: 'text-red-600', bg: 'bg-red-100' };
   };
 
   const getWeightProgress = () => {
@@ -274,11 +274,15 @@ export default function HealthDashboardPage() {
             <div className="space-y-3">
               <div>
                 <span className="text-sm font-medium text-gray-600">{t.smokingStatus}:</span>
-                <span className="ml-2 text-gray-900 capitalize">{profile.smoking_status || '--'}</span>
+                <span className="ml-2 text-gray-900">
+                  {profile.smoking_status ? t[profile.smoking_status as keyof typeof t] || profile.smoking_status : '--'}
+                </span>
               </div>
               <div>
                 <span className="text-sm font-medium text-gray-600">{t.alcoholConsumption}:</span>
-                <span className="ml-2 text-gray-900 capitalize">{profile.alcohol_consumption || '--'}</span>
+                <span className="ml-2 text-gray-900">
+                  {profile.alcohol_consumption ? t[profile.alcohol_consumption as keyof typeof t] || profile.alcohol_consumption : '--'}
+                </span>
               </div>
             </div>
           </div>
