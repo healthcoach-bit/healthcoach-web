@@ -245,6 +245,8 @@ export const translations = {
     recentMeals: 'Recent Meals',
     viewAll: 'View All',
     viewAllMeals: 'View Complete History',
+    calorieGoal: 'Calorie Goal',
+    nutritionalInfo: 'Nutritional Information',
   },
   es: {
     // Navigation
@@ -490,6 +492,8 @@ export const translations = {
     recentMeals: 'Últimas Comidas',
     viewAll: 'Ver Todas',
     viewAllMeals: 'Ver Historial Completo',
+    calorieGoal: 'Objetivo de Calorías',
+    nutritionalInfo: 'Información Nutricional',
   },
 };
 

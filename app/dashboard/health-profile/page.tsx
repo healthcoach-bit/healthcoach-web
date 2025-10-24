@@ -23,6 +23,7 @@ export default function HealthProfilePage() {
     currentWeightKg: '',
     heightCm: '',
     targetWeightKg: '',
+    calorieGoal: '',
     medicalConditions: [] as string[],
     allergies: [] as string[],
     medications: [] as string[],
@@ -58,6 +59,7 @@ export default function HealthProfilePage() {
         currentWeightKg: profile.current_weight_kg?.toString() || '',
         heightCm: profile.height_cm?.toString() || '',
         targetWeightKg: profile.target_weight_kg?.toString() || '',
+        calorieGoal: profile.calorie_goal?.toString() || '2500',
         medicalConditions: profile.medical_conditions || [],
         allergies: profile.allergies || [],
         medications: profile.medications || [],
@@ -178,7 +180,7 @@ export default function HealthProfilePage() {
           {/* Measurements */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">{t.measurements}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <FormInput
                 type="number"
                 step="0.1"
@@ -204,6 +206,15 @@ export default function HealthProfilePage() {
                 value={formData.targetWeightKg}
                 onChange={(e) => setFormData({ ...formData, targetWeightKg: e.target.value })}
                 placeholder="65.0"
+              />
+
+              <FormInput
+                type="number"
+                step="1"
+                label={`${t.calorieGoal || 'Objetivo de Calorías'} (${t.kcal || 'kcal'})`}
+                value={formData.calorieGoal}
+                onChange={(e) => setFormData({ ...formData, calorieGoal: e.target.value })}
+                placeholder="2500"
               />
             </div>
           </div>

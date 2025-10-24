@@ -11,6 +11,7 @@ interface HealthProfile {
   current_weight_kg?: number;
   height_cm?: number;
   target_weight_kg?: number;
+  calorie_goal?: number;
   medical_conditions?: string[];
   allergies?: string[];
   medications?: string[];
@@ -29,6 +30,7 @@ interface HealthProfileData {
   currentWeightKg?: number;
   heightCm?: number;
   targetWeightKg?: number;
+  calorieGoal?: number;
   medicalConditions?: string[];
   allergies?: string[];
   medications?: string[];

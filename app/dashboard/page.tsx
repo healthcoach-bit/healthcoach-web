@@ -11,6 +11,7 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import ErrorAlert from '@/components/ErrorAlert';
 import FoodLogCard from '@/components/FoodLogCard';
 import { useFoodLogs } from '@/hooks/useFoodLogs';
+import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { useUIStore } from '@/store/ui-store';
 
 export default function DashboardPage() {
@@ -21,6 +22,7 @@ export default function DashboardPage() {
   
   // React Query hooks
   const { data: foodLogs = [], isLoading, error } = useFoodLogs(dateFilter);
+  const { data: profile } = useHealthProfile();
 
   // Calculate daily totals
   const dailyTotals = foodLogs.reduce((acc: { calories: number; protein: number; carbs: number; fat: number }, log: any) => {
@@ -32,7 +34,7 @@ export default function DashboardPage() {
     };
   }, { calories: 0, protein: 0, carbs: 0, fat: 0 });
 
-  const calorieGoal = 2500; // TODO: Get from user profile
+  const calorieGoal = profile?.calorie_goal || 2500;
   const calorieProgress = Math.min(100, (dailyTotals.calories / calorieGoal) * 100);
 
   const formatMealTime = (timestamp: string) => {
