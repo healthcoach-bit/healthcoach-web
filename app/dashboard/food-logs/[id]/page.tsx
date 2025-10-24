@@ -125,18 +125,19 @@ export default function FoodLogDetailPage() {
             {(() => {
               const photo = foodLog.photos[0];
               console.log('Photo object:', photo);
+              console.log('Photo URL from backend:', photo.url);
               
-              // The photo is stored in S3, we need to get it through the photos endpoint
-              const photoApiUrl = `${process.env.NEXT_PUBLIC_API_URL}/photos/${photo.id}`;
-              console.log('Loading photo from API:', photoApiUrl);
+              if (!photo.url) {
+                return <p className="text-gray-500">No se pudo cargar la foto (URL no disponible)</p>;
+              }
               
               return (
                 <img
-                  src={photoApiUrl}
+                  src={photo.url}
                   alt="Food"
                   className="w-full rounded-lg"
                   onError={(e) => {
-                    console.error('Failed to load image from API:', photoApiUrl);
+                    console.error('Failed to load image from S3:', photo.url);
                     e.currentTarget.style.display = 'none';
                   }}
                 />
