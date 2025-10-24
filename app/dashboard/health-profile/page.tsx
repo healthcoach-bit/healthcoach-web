@@ -75,7 +75,7 @@ export default function HealthProfilePage() {
     setSaveError('');
 
     try {
-      await saveProfile.mutateAsync({
+      const payload = {
         dateOfBirth: formData.dateOfBirth || undefined,
         gender: formData.gender || undefined,
         currentWeightKg: formData.currentWeightKg ? parseFloat(formData.currentWeightKg) : undefined,
@@ -89,10 +89,15 @@ export default function HealthProfilePage() {
         smokingStatus: formData.smokingStatus || undefined,
         alcoholConsumption: formData.alcoholConsumption || undefined,
         healthGoals: formData.healthGoals.length > 0 ? formData.healthGoals : undefined,
-      });
+      };
+      
+      console.log('Submitting profile:', payload);
+      
+      await saveProfile.mutateAsync(payload);
 
       router.push('/dashboard/health');
     } catch (err: any) {
+      console.error('Save profile error:', err);
       setSaveError(err.message || 'Failed to save profile');
     }
   };
