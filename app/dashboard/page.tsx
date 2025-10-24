@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { getCurrentUser } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -18,6 +18,7 @@ export default function DashboardPage() {
   const { t, locale } = useLanguage();
   const dateFilter = useUIStore((state) => state.dateFilter);
   const openDeleteModal = useUIStore((state) => state.openDeleteModal);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   
   // React Query hooks
   const { data: foodLogs = [], isLoading, error } = useFoodLogs(dateFilter);
@@ -65,12 +66,13 @@ export default function DashboardPage() {
   const checkAuth = async () => {
     try {
       await getCurrentUser();
+      setIsCheckingAuth(false);
     } catch (err) {
       router.push('/login');
     }
   };
 
-  if (isLoading) {
+  if (isCheckingAuth || isLoading) {
     return <LoadingSpinner fullScreen />;
   }
 

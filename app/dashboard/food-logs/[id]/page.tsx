@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { getCurrentUser } from 'aws-amplify/auth';
 import { useRouter, useParams } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -15,6 +15,7 @@ export default function FoodLogDetailPage() {
   const params = useParams();
   const { t, locale } = useLanguage();
   const foodLogId = params.id as string;
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   const { data: foodLog, isLoading, error } = useFoodLog(foodLogId);
 
@@ -34,12 +35,13 @@ export default function FoodLogDetailPage() {
   const checkAuth = async () => {
     try {
       await getCurrentUser();
+      setIsCheckingAuth(false);
     } catch (err) {
       router.push('/login');
     }
   };
 
-  if (isLoading) {
+  if (isCheckingAuth || isLoading) {
     return <LoadingSpinner fullScreen />;
   }
 
@@ -77,7 +79,14 @@ export default function FoodLogDetailPage() {
               <h1 className="text-3xl font-bold text-gray-900 capitalize">
                 {t[foodLog.meal_type as keyof typeof t] || foodLog.meal_type}
               </h1>
-              <p className="text-gray-600">{formatDate(foodLog.timestamp, locale)}</p>
+              <p className="text-gray-600">
+                {formatDate(foodLog.timestamp, locale)}
+                {foodLog.timestamp && (
+                  <span className="ml-2 text-gray-500">
+                    • {new Date(foodLog.timestamp).toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' })}
+                  </span>
+                )}
+              </p>
             </div>
           </div>
         </div>
