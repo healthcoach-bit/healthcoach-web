@@ -7,6 +7,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import DashboardHeader from '@/components/DashboardHeader';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ErrorAlert from '@/components/ErrorAlert';
+import FormInput from '@/components/FormInput';
+import FormSelect from '@/components/FormSelect';
 import { useHealthProfile, useSaveHealthProfile } from '@/hooks/useHealthProfile';
 
 export default function HealthProfilePage() {
@@ -152,32 +154,24 @@ export default function HealthProfilePage() {
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">{t.basicInfo}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t.dateOfBirth}
-                </label>
-                <input
-                  type="date"
-                  value={formData.dateOfBirth}
-                  onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                />
-              </div>
+              <FormInput
+                type="date"
+                label={t.dateOfBirth}
+                value={formData.dateOfBirth}
+                onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+              />
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">{t.gender}</label>
-                <select
-                  value={formData.gender}
-                  onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                >
-                  <option value="">{t.select}</option>
-                  <option value="male">{t.male}</option>
-                  <option value="female">{t.female}</option>
-                  <option value="other">{t.other}</option>
-                  <option value="prefer_not_to_say">{t.preferNotToSay}</option>
-                </select>
-              </div>
+              <FormSelect
+                label={t.gender}
+                value={formData.gender}
+                onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+              >
+                <option value="">{t.select}</option>
+                <option value="male">{t.male}</option>
+                <option value="female">{t.female}</option>
+                <option value="other">{t.other}</option>
+                <option value="prefer_not_to_say">{t.preferNotToSay}</option>
+              </FormSelect>
             </div>
           </div>
 
@@ -185,47 +179,32 @@ export default function HealthProfilePage() {
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">{t.measurements}</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t.currentWeight} ({t.kg})
-                </label>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={formData.currentWeightKg}
-                  onChange={(e) => setFormData({ ...formData, currentWeightKg: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                  placeholder="70.5"
-                />
-              </div>
+              <FormInput
+                type="number"
+                step="0.1"
+                label={`${t.currentWeight} (${t.kg})`}
+                value={formData.currentWeightKg}
+                onChange={(e) => setFormData({ ...formData, currentWeightKg: e.target.value })}
+                placeholder="70.5"
+              />
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t.height} ({t.cm})
-                </label>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={formData.heightCm}
-                  onChange={(e) => setFormData({ ...formData, heightCm: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                  placeholder="170"
-                />
-              </div>
+              <FormInput
+                type="number"
+                step="0.1"
+                label={`${t.height} (${t.cm})`}
+                value={formData.heightCm}
+                onChange={(e) => setFormData({ ...formData, heightCm: e.target.value })}
+                placeholder="170"
+              />
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t.targetWeight} ({t.kg})
-                </label>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={formData.targetWeightKg}
-                  onChange={(e) => setFormData({ ...formData, targetWeightKg: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                  placeholder="65.0"
-                />
-              </div>
+              <FormInput
+                type="number"
+                step="0.1"
+                label={`${t.targetWeight} (${t.kg})`}
+                value={formData.targetWeightKg}
+                onChange={(e) => setFormData({ ...formData, targetWeightKg: e.target.value })}
+                placeholder="65.0"
+              />
             </div>
           </div>
 
@@ -240,7 +219,7 @@ export default function HealthProfilePage() {
                   {t.medicalConditions}
                 </label>
                 <div className="flex gap-2 mb-2">
-                  <input
+                  <FormInput
                     type="text"
                     value={newCondition}
                     onChange={(e) => setNewCondition(e.target.value)}
@@ -251,8 +230,8 @@ export default function HealthProfilePage() {
                         setNewCondition('');
                       }
                     }}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
                     placeholder={t.typeAndPressEnter}
+                    className="flex-1"
                   />
                   <button
                     type="button"
@@ -260,7 +239,7 @@ export default function HealthProfilePage() {
                       addItem('medicalConditions', newCondition);
                       setNewCondition('');
                     }}
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 h-[42px] self-end"
                   >
                     {t.add}
                   </button>
@@ -292,56 +271,41 @@ export default function HealthProfilePage() {
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">{t.lifestyle}</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t.activityLevel}
-                </label>
-                <select
-                  value={formData.activityLevel}
-                  onChange={(e) => setFormData({ ...formData, activityLevel: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                >
-                  <option value="">{t.select}</option>
-                  <option value="sedentary">{t.sedentary}</option>
-                  <option value="light">{t.lightActivity}</option>
-                  <option value="moderate">{t.moderateActivity}</option>
-                  <option value="active">{t.active}</option>
-                  <option value="very_active">{t.veryActive}</option>
-                </select>
-              </div>
+              <FormSelect
+                label={t.activityLevel}
+                value={formData.activityLevel}
+                onChange={(e) => setFormData({ ...formData, activityLevel: e.target.value })}
+              >
+                <option value="">{t.select}</option>
+                <option value="sedentary">{t.sedentary}</option>
+                <option value="light">{t.lightActivity}</option>
+                <option value="moderate">{t.moderateActivity}</option>
+                <option value="active">{t.active}</option>
+                <option value="very_active">{t.veryActive}</option>
+              </FormSelect>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t.smokingStatus}
-                </label>
-                <select
-                  value={formData.smokingStatus}
-                  onChange={(e) => setFormData({ ...formData, smokingStatus: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                >
-                  <option value="">{t.select}</option>
-                  <option value="never">{t.never}</option>
-                  <option value="former">{t.former}</option>
-                  <option value="current">{t.current}</option>
-                </select>
-              </div>
+              <FormSelect
+                label={t.smokingStatus}
+                value={formData.smokingStatus}
+                onChange={(e) => setFormData({ ...formData, smokingStatus: e.target.value })}
+              >
+                <option value="">{t.select}</option>
+                <option value="never">{t.never}</option>
+                <option value="former">{t.former}</option>
+                <option value="current">{t.current}</option>
+              </FormSelect>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t.alcoholConsumption}
-                </label>
-                <select
-                  value={formData.alcoholConsumption}
-                  onChange={(e) => setFormData({ ...formData, alcoholConsumption: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                >
-                  <option value="">{t.select}</option>
-                  <option value="none">{t.none}</option>
-                  <option value="occasional">{t.occasional}</option>
-                  <option value="moderate">{t.moderate}</option>
-                  <option value="frequent">{t.frequent}</option>
-                </select>
-              </div>
+              <FormSelect
+                label={t.alcoholConsumption}
+                value={formData.alcoholConsumption}
+                onChange={(e) => setFormData({ ...formData, alcoholConsumption: e.target.value })}
+              >
+                <option value="">{t.select}</option>
+                <option value="none">{t.none}</option>
+                <option value="occasional">{t.occasional}</option>
+                <option value="moderate">{t.moderate}</option>
+                <option value="frequent">{t.frequent}</option>
+              </FormSelect>
             </div>
           </div>
 
