@@ -248,6 +248,8 @@ export const translations = {
     calorieGoal: 'Calorie Goal',
     calorieGoalDaily: 'Daily Calorie Goal',
     nutritionalInfo: 'Nutritional Information',
+    today: 'Today',
+    yesterday: 'Yesterday',
   },
   es: {
     // Navigation
@@ -496,6 +498,8 @@ export const translations = {
     calorieGoal: 'Objetivo de Calorías',
     calorieGoalDaily: 'Objetivo de Calorías día',
     nutritionalInfo: 'Información Nutricional',
+    today: 'Hoy',
+    yesterday: 'Ayer',
   },
 };
 

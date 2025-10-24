@@ -44,12 +44,12 @@ export default function DashboardPage() {
     
     // Check if it's today
     if (date.toDateString() === today.toDateString()) {
-      return `${locale === 'es' ? 'Hoy' : 'Today'} ${date.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' })}`;
+      return `${t.today} ${date.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' })}`;
     }
     
     // Check if it's yesterday
     if (date.toDateString() === yesterday.toDateString()) {
-      return `${locale === 'es' ? 'Ayer' : 'Yesterday'} ${date.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' })}`;
+      return `${t.yesterday} ${date.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' })}`;
     }
     
     // Other dates: show short date + time
