@@ -24,7 +24,10 @@ export function useFoodLogs(params?: { from?: string; to?: string }) {
 export function useFoodLog(id: string) {
   return useQuery({
     queryKey: foodLogKeys.detail(id),
-    queryFn: () => apiClient.getFoodLog(id),
+    queryFn: async () => {
+      const response = await apiClient.getFoodLog(id);
+      return response.foodLog || response;
+    },
     enabled: !!id,
   });
 }

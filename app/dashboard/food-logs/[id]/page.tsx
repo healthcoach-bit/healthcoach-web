@@ -80,7 +80,7 @@ export default function FoodLogDetailPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center p-4 bg-orange-50 rounded-lg">
               <p className="text-sm text-gray-600 mb-1">{t.calories || 'Calorías'}</p>
-              <p className="text-2xl font-bold text-orange-600">{foodLog.total_calories}</p>
+              <p className="text-2xl font-bold text-orange-600">{foodLog.total_calories || 0}</p>
               <p className="text-xs text-gray-500">{t.kcal || 'kcal'}</p>
             </div>
             
