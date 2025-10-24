@@ -70,8 +70,6 @@ async function createOrUpdateHealthProfile(
 ): Promise<HealthProfile> {
   const token = await getAuthToken();
   
-  console.log('Saving profile with data:', profileData);
-  
   const response = await fetch(`${API_ENDPOINT}/health-profile`, {
     method: 'POST',
     headers: {
@@ -83,7 +81,6 @@ async function createOrUpdateHealthProfile(
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    console.error('Failed to save profile:', response.status, errorData);
     throw new Error(errorData.message || `Failed to save health profile (${response.status})`);
   }
 
