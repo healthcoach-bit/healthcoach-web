@@ -8,6 +8,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import ErrorAlert from '@/components/ErrorAlert';
 import AuthSkeleton from '@/components/AuthSkeleton';
+import FormInput from '@/components/FormInput';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -94,20 +95,15 @@ export default function SignupPage() {
           {error && <ErrorAlert message={error} />}
 
           <form onSubmit={handleConfirm} className="space-y-5 sm:space-y-6">
-            <div>
-              <label htmlFor="code" className="block text-sm font-medium text-gray-900 mb-2">
-                {t.verificationCode}
-              </label>
-              <input
-                id="code"
-                type="text"
-                required
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 placeholder:text-gray-400"
-                placeholder="123456"
-              />
-            </div>
+            <FormInput
+              id="code"
+              type="text"
+              label={t.verificationCode}
+              required
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              placeholder="123456"
+            />
 
             <button
               type="submit"
@@ -140,38 +136,26 @@ export default function SignupPage() {
         )}
 
         <form onSubmit={handleSignUp} className="space-y-5 sm:space-y-6">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-900 mb-2">
-              {t.email}
-            </label>
-            <input
-              id="email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 placeholder:text-gray-400"
-              placeholder="you@example.com"
-            />
-          </div>
+          <FormInput
+            id="email"
+            type="email"
+            label={t.email}
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+          />
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-900 mb-2">
-              {t.password}
-            </label>
-            <input
-              id="password"
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 placeholder:text-gray-400"
-              placeholder="••••••••"
-            />
-            <p className="mt-1 text-sm text-gray-600">
-              {t.passwordRequirements}
-            </p>
-          </div>
+          <FormInput
+            id="password"
+            type="password"
+            label={t.password}
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            helperText={t.passwordRequirements}
+          />
 
           <button
             type="submit"

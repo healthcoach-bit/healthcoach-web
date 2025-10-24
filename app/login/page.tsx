@@ -8,6 +8,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import ErrorAlert from '@/components/ErrorAlert';
 import AuthSkeleton from '@/components/AuthSkeleton';
+import FormInput from '@/components/FormInput';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -66,35 +67,25 @@ export default function LoginPage() {
         {error && <ErrorAlert message={error} />}
 
         <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-900 mb-2">
-              {t.email}
-            </label>
-            <input
-              id="email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 placeholder:text-gray-400"
-              placeholder="you@example.com"
-            />
-          </div>
+          <FormInput
+            id="email"
+            type="email"
+            label={t.email}
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+          />
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-900 mb-2">
-              {t.password}
-            </label>
-            <input
-              id="password"
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 placeholder:text-gray-400"
-              placeholder="••••••••"
-            />
-          </div>
+          <FormInput
+            id="password"
+            type="password"
+            label={t.password}
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+          />
 
           <button
             type="submit"

@@ -7,6 +7,8 @@ import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import DashboardHeader from '@/components/DashboardHeader';
 import ErrorAlert from '@/components/ErrorAlert';
+import FormInput from '@/components/FormInput';
+import FormTextarea from '@/components/FormTextarea';
 import { useCreateFoodLog } from '@/hooks/useFoodLogs';
 import { usePhotoUpload } from '@/hooks/usePhotos';
 import { useUIStore } from '@/store/ui-store';
@@ -163,19 +165,14 @@ export default function NewLogPage() {
             </div>
 
             {/* Date & Time */}
-            <div>
-              <label htmlFor="timestamp" className="block text-sm font-semibold text-gray-900 mb-2">
-                {t.dateTime}
-              </label>
-              <input
-                id="timestamp"
-                type="datetime-local"
-                value={timestamp}
-                onChange={(e) => setTimestamp(e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
-                required
-              />
-            </div>
+            <FormInput
+              id="timestamp"
+              type="datetime-local"
+              label={t.dateTime}
+              value={timestamp}
+              onChange={(e) => setTimestamp(e.target.value)}
+              required
+            />
 
             {/* Photo Upload */}
             <div>
@@ -226,23 +223,16 @@ export default function NewLogPage() {
             </div>
 
             {/* Notes */}
-            <div>
-              <label htmlFor="notes" className="block text-sm font-semibold text-gray-900 mb-2">
-                {t.notes} ({t.optional})
-              </label>
-              <textarea
-                id="notes"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                rows={4}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900 placeholder:text-gray-400 resize-none"
-                placeholder={t.addNotes}
-                disabled={isLoading}
-              />
-              <p className="mt-1 text-xs text-gray-500">
-                {t.notesHelper}
-              </p>
-            </div>
+            <FormTextarea
+              id="notes"
+              label={`${t.notes} (${t.optional})`}
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={4}
+              placeholder={t.addNotes}
+              disabled={isLoading}
+              helperText={t.notesHelper}
+            />
 
             {/* Upload Progress */}
             {isLoading && uploadProgress > 0 && (
