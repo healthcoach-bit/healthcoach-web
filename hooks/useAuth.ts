@@ -23,7 +23,6 @@ export function useAuth() {
       }
     } catch (err) {
       // Only redirect if we're sure there's no valid session
-      console.log('Auth check failed, redirecting to login');
       router.push('/login');
     } finally {
       setIsCheckingAuth(false);
