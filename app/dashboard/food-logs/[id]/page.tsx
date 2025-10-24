@@ -23,7 +23,9 @@ export default function FoodLogDetailPage() {
     if (foodLog) {
       console.log('Food Log Data:', foodLog);
       console.log('Timestamp:', foodLog.timestamp);
-      console.log('Timestamp type:', typeof foodLog.timestamp);
+      console.log('Total Calories:', foodLog.total_calories);
+      console.log('Photo URL:', foodLog.photo_url);
+      console.log('Has photos array?:', foodLog.photos);
     }
   }, [foodLog]);
 
