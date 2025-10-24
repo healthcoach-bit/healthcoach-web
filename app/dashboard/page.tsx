@@ -9,7 +9,6 @@ import DashboardHeader from '@/components/DashboardHeader';
 import DeleteConfirmModal from '@/components/DeleteConfirmModal';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ErrorAlert from '@/components/ErrorAlert';
-import FoodLogCard from '@/components/FoodLogCard';
 import { useFoodLogs } from '@/hooks/useFoodLogs';
 import { useHealthProfile } from '@/hooks/useHealthProfile';
 import { useUIStore } from '@/store/ui-store';
@@ -37,9 +36,26 @@ export default function DashboardPage() {
   const calorieGoal = profile?.calorie_goal || 2500;
   const calorieProgress = Math.min(100, (dailyTotals.calories / calorieGoal) * 100);
 
-  const formatMealTime = (timestamp: string) => {
+  const formatMealDateTime = (timestamp: string) => {
     const date = new Date(timestamp);
-    return date.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' });
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    // Check if it's today
+    if (date.toDateString() === today.toDateString()) {
+      return `${locale === 'es' ? 'Hoy' : 'Today'} ${date.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' })}`;
+    }
+    
+    // Check if it's yesterday
+    if (date.toDateString() === yesterday.toDateString()) {
+      return `${locale === 'es' ? 'Ayer' : 'Yesterday'} ${date.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' })}`;
+    }
+    
+    // Other dates: show short date + time
+    const shortDate = date.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
+    const time = date.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' });
+    return `${shortDate} ${time}`;
   };
 
   useEffect(() => {
@@ -185,7 +201,7 @@ export default function DashboardPage() {
                           {t[log.meal_type as keyof typeof t] || log.meal_type}
                         </h3>
                         <span className="text-sm text-gray-500">•</span>
-                        <span className="text-sm text-gray-500">{formatMealTime(log.timestamp)}</span>
+                        <span className="text-sm text-gray-500">{formatMealDateTime(log.timestamp)}</span>
                       </div>
                       <p className="text-sm text-gray-600 line-clamp-1">
                         {log.notes || `${log.total_calories} ${t.kcal || 'kcal'}`}
