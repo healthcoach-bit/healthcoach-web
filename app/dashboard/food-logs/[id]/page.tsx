@@ -22,6 +22,15 @@ export default function FoodLogDetailPage() {
     checkAuth();
   }, []);
 
+  // Debug: Log food log data
+  useEffect(() => {
+    if (foodLog) {
+      console.log('Food Log Data:', foodLog);
+      console.log('Timestamp:', foodLog.timestamp);
+      console.log('Timestamp type:', typeof foodLog.timestamp);
+    }
+  }, [foodLog]);
+
   const checkAuth = async () => {
     try {
       await getCurrentUser();
