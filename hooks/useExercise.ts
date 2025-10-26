@@ -32,7 +32,7 @@ async function getAuthToken(): Promise<string> {
 async function fetchExerciseLogs(limit: number = 30): Promise<ExerciseLog[]> {
   const token = await getAuthToken();
   
-  const response = await fetch(`${API_ENDPOINT}/exercise?limit=${limit}`, {
+  const response = await fetch(`${API_ENDPOINT}/exercise-logs?limit=${limit}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -48,7 +48,7 @@ async function fetchExerciseLogs(limit: number = 30): Promise<ExerciseLog[]> {
 
 async function createExerciseLog(exerciseData: ExerciseData): Promise<ExerciseLog> {
   const token = await getAuthToken();
-  const response = await fetch(`${API_ENDPOINT}/exercise`, {
+  const response = await fetch(`${API_ENDPOINT}/exercise-logs`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -68,7 +68,7 @@ async function createExerciseLog(exerciseData: ExerciseData): Promise<ExerciseLo
 
 async function deleteExerciseLog(exerciseId: string): Promise<void> {
   const token = await getAuthToken();
-  const response = await fetch(`${API_ENDPOINT}/exercise/${exerciseId}`, {
+  const response = await fetch(`${API_ENDPOINT}/exercise-logs/${exerciseId}`, {
     method: 'DELETE',
     headers: {
       Authorization: `Bearer ${token}`,
