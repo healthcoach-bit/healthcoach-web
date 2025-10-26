@@ -99,17 +99,15 @@ export default function NewLogPage() {
       // Step 1: Create food log
       setUploadProgress(20);
       
-      // Convert datetime-local to ISO string preserving the exact time the user selected
-      // We need to ensure the time is treated as local time, not UTC
+      // Convert datetime-local to ISO string
+      // datetime-local already gives us the local time, just convert to ISO
       const selectedDate = new Date(timestamp);
-      const timezoneOffset = selectedDate.getTimezoneOffset() * 60000; // offset in milliseconds
-      const localISOTime = new Date(selectedDate.getTime() - timezoneOffset).toISOString();
       
       const payload = {
         mealType,
         notes: notes.trim() || undefined,
         totalCalories: calories ? parseInt(calories) : undefined,
-        timestamp: localISOTime,
+        timestamp: selectedDate.toISOString(),
       };
       
       const foodLogResponse = await createFoodLog.mutateAsync(payload);
