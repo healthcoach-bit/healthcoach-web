@@ -11,24 +11,22 @@ export const photoKeys = {
 
 /**
  * Compress and convert image to WebP format
- * - Max width: 1920px
- * - Quality: 0.8 (80%)
+ * - Max size: 300KB
+ * - Max width: 1440px (good balance for mobile/web)
+ * - Quality: 0.75 (75% - optimal quality/size ratio)
  * - Format: WebP
  */
 async function compressAndConvertImage(file: File): Promise<File> {
   const options = {
-    maxSizeMB: 2, // Maximum file size in MB
-    maxWidthOrHeight: 1920, // Maximum width or height
+    maxSizeMB: 0.3, // Maximum 300KB
+    maxWidthOrHeight: 1440, // Maximum width or height (good for most displays)
     useWebWorker: true,
     fileType: 'image/webp', // Convert to WebP
-    initialQuality: 0.8, // 80% quality
+    initialQuality: 0.75, // 75% quality (excellent quality/size balance)
   };
 
   try {
-    console.log('Original file size:', (file.size / 1024 / 1024).toFixed(2), 'MB');
     const compressedFile = await imageCompression(file, options);
-    console.log('Compressed file size:', (compressedFile.size / 1024 / 1024).toFixed(2), 'MB');
-    console.log('Compression ratio:', ((1 - compressedFile.size / file.size) * 100).toFixed(1), '%');
     
     // Create a new File with .webp extension
     const webpFile = new File(
@@ -103,7 +101,6 @@ export function usePhotoUpload() {
     try {
       // Step 1: Compress and convert to WebP
       onProgress?.(10);
-      console.log('Compressing image...');
       const compressedFile = await compressAndConvertImage(file);
       
       // Step 2: Get presigned URL
