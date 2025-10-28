@@ -52,12 +52,40 @@ export default function RootLayout({
                     }
                   })
                 }
-                const onLoad = function () {
+                const onLoad = async function () {
                   const script = document.createElement("script");
                   script.src = "https://app.wallavi.com/embed.min.js";
                   script.id = "94a69f41-fcd1-42f8-86bf-9a882cd904cb";
                   script.domain = "app.wallavi.com";
-                  document.body.appendChild(script)
+                  
+                  // Setup auth after Wallavi loads
+                  script.onload = async function() {
+                    try {
+                      // Import Amplify auth dynamically
+                      const { fetchAuthSession } = await import('@aws-amplify/auth');
+                      const session = await fetchAuthSession();
+                      const token = session.tokens?.idToken?.toString();
+                      
+                      if (token && window.wallavi) {
+                        window.wallavi.identify({
+                          user_metadata: {
+                            _authorizations_HealthCoachAPI: {
+                              type: "bearer",
+                              in: "header",
+                              name: "Authorization",
+                              isActive: true,
+                              value: "Bearer " + token
+                            }
+                          }
+                        });
+                        console.log("✅ Wallavi authenticated with Cognito token");
+                      }
+                    } catch (error) {
+                      console.error("⚠️ Wallavi auth error:", error);
+                    }
+                  };
+                  
+                  document.body.appendChild(script);
                 };
                 if (document.readyState === "complete") {
                   onLoad()
