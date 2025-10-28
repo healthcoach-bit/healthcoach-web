@@ -65,20 +65,26 @@ export default function RootLayout({
                       const { fetchAuthSession } = await import('@aws-amplify/auth');
                       const session = await fetchAuthSession();
                       const token = session.tokens?.idToken?.toString();
+                      const userId = session.tokens?.idToken?.payload?.sub;
                       
-                      if (token && window.wallavi) {
+                      if (token && userId && window.wallavi) {
                         window.wallavi.identify({
                           user_metadata: {
+                            // Authorization for API calls
                             _authorizations_HealthCoachAPI: {
                               type: "bearer",
                               in: "header",
                               name: "Authorization",
                               isActive: true,
                               value: "Bearer " + token
+                            },
+                            // Context Builder metadata - passed as query params
+                            _contextBuilder: {
+                              user_id: userId
                             }
                           }
                         });
-                        console.log("✅ Wallavi authenticated with Cognito token");
+                        console.log("✅ Wallavi authenticated - User ID:", userId);
                       }
                     } catch (error) {
                       console.error("⚠️ Wallavi auth error:", error);
