@@ -28,6 +28,24 @@ export default function WallaviAuth() {
         if (token && userId) {
           const metadata = {
             user_metadata: {
+              // Environment context - immediate user context
+              _environmentContext: {
+                user: {
+                  id: userId,
+                  authenticated: true,
+                  tier: "standard"
+                },
+                app: {
+                  name: "HealthCoach",
+                  features: ["food_logging", "exercise_tracking", "health_metrics", "ai_coach"],
+                  version: "1.0.0"
+                },
+                session: {
+                  token_expires: new Date((session.tokens?.idToken?.payload?.exp as number) * 1000).toISOString(),
+                  locale: "es-US"
+                }
+              },
+              
               // Global authorization for API calls
               _authorizations_HealthCoachAPI4: {
                 type: 'bearer',
