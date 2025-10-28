@@ -26,7 +26,7 @@ export default function WallaviAuth() {
         const userId = session.tokens?.idToken?.payload?.sub as string;
 
         if (token && userId) {
-          window.wallavi.identify({
+          const metadata = {
             user_metadata: {
               // Authorization for API calls - must match EXACT integration name in Wallavi
               _authorizations_HealthCoachAPI: {
@@ -41,9 +41,12 @@ export default function WallaviAuth() {
                 user_id: userId,
               },
             },
-          });
+          };
+          
+          window.wallavi.identify(metadata);
           console.log('✅ Wallavi authenticated - User ID:', userId);
           console.log('🔑 Token expires:', new Date((session.tokens?.idToken?.payload?.exp as number) * 1000).toLocaleTimeString());
+          console.log('📦 Metadata sent to Wallavi:', JSON.stringify(metadata, null, 2));
         } else {
           console.log('⚠️ No auth session found');
         }
