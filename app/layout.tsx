@@ -5,6 +5,7 @@ import "./globals.css";
 import AuthProvider from "@/components/AuthProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import QueryProvider from "@/components/QueryProvider";
+import WallaviAuth from "@/components/WallaviAuth";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,6 +26,8 @@ export default function RootLayout({
           <LanguageProvider>
             <AuthProvider>
               {children}
+              {/* Wallavi Auth - handles token authentication */}
+              <WallaviAuth />
             </AuthProvider>
           </LanguageProvider>
         </QueryProvider>
@@ -52,46 +55,12 @@ export default function RootLayout({
                     }
                   })
                 }
-                const onLoad = async function () {
+                const onLoad = function () {
                   const script = document.createElement("script");
                   script.src = "https://app.wallavi.com/embed.min.js";
                   script.id = "94a69f41-fcd1-42f8-86bf-9a882cd904cb";
                   script.domain = "app.wallavi.com";
-                  
-                  // Setup auth after Wallavi loads
-                  script.onload = async function() {
-                    try {
-                      // Import Amplify auth dynamically
-                      const { fetchAuthSession } = await import('@aws-amplify/auth');
-                      const session = await fetchAuthSession();
-                      const token = session.tokens?.idToken?.toString();
-                      const userId = session.tokens?.idToken?.payload?.sub;
-                      
-                      if (token && userId && window.wallavi) {
-                        window.wallavi.identify({
-                          user_metadata: {
-                            // Authorization for API calls
-                            _authorizations_HealthCoachAPI: {
-                              type: "bearer",
-                              in: "header",
-                              name: "Authorization",
-                              isActive: true,
-                              value: "Bearer " + token
-                            },
-                            // Context Builder metadata - passed as query params
-                            _contextBuilder: {
-                              user_id: userId
-                            }
-                          }
-                        });
-                        console.log("✅ Wallavi authenticated - User ID:", userId);
-                      }
-                    } catch (error) {
-                      console.error("⚠️ Wallavi auth error:", error);
-                    }
-                  };
-                  
-                  document.body.appendChild(script);
+                  document.body.appendChild(script)
                 };
                 if (document.readyState === "complete") {
                   onLoad()
