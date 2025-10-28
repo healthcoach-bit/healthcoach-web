@@ -27,8 +27,8 @@ export default function WallaviAuth() {
         if (token && userId) {
           window.wallavi.identify({
             user_metadata: {
-              // Authorization for API calls
-              _authorizations_HealthCoachAPI: {
+              // Authorization for API calls - must match EXACT integration name in Wallavi
+              '_authorizations_HealthCoach API': {
                 type: 'bearer',
                 in: 'header',
                 name: 'Authorization',
@@ -42,6 +42,7 @@ export default function WallaviAuth() {
             },
           });
           console.log('✅ Wallavi authenticated - User ID:', userId);
+          console.log('🔑 Token:', token.substring(0, 20) + '...');
         } else {
           console.log('⚠️ No auth session found');
         }
