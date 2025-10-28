@@ -20,7 +20,8 @@ export default function WallaviAuth() {
       }
 
       try {
-        const session = await fetchAuthSession();
+        // Force refresh to get latest token
+        const session = await fetchAuthSession({ forceRefresh: true });
         const token = session.tokens?.idToken?.toString();
         const userId = session.tokens?.idToken?.payload?.sub as string;
 
@@ -28,7 +29,7 @@ export default function WallaviAuth() {
           window.wallavi.identify({
             user_metadata: {
               // Authorization for API calls - must match EXACT integration name in Wallavi
-              '_authorizations_HealthCoach API': {
+              _authorizations_HealthCoachAPI: {
                 type: 'bearer',
                 in: 'header',
                 name: 'Authorization',
@@ -42,7 +43,7 @@ export default function WallaviAuth() {
             },
           });
           console.log('✅ Wallavi authenticated - User ID:', userId);
-          console.log('🔑 Token:', token.substring(0, 20) + '...');
+          console.log('🔑 Token expires:', new Date((session.tokens?.idToken?.payload?.exp as number) * 1000).toLocaleTimeString());
         } else {
           console.log('⚠️ No auth session found');
         }
@@ -65,9 +66,16 @@ export default function WallaviAuth() {
       }
     }, 500);
 
+    // Refresh token every 50 minutes (tokens expire after 60 minutes)
+    const refreshInterval = setInterval(() => {
+      console.log('🔄 Refreshing Cognito token...');
+      setupWallaviAuth();
+    }, 50 * 60 * 1000); // 50 minutes
+
     return () => {
       clearTimeout(timeoutId);
       clearInterval(checkInterval);
+      clearInterval(refreshInterval);
     };
   }, []);
 
