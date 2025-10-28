@@ -28,17 +28,63 @@ export default function WallaviAuth() {
         if (token && userId) {
           const metadata = {
             user_metadata: {
-              // Authorization for API calls - must match EXACT integration name in Wallavi (HealthCoachAPI3)
-              _authorizations_HealthCoachAPI3: {
+              // Global authorization for API calls
+              _authorizations_HealthCoachAPI4: {
                 type: 'bearer',
                 in: 'header',
                 name: 'Authorization',
                 isActive: true,
                 value: `Bearer ${token}`,
               },
+              
               // Context Builder metadata - passed as query params
               _contextBuilder: {
                 user_id: userId,
+              },
+              
+              // Function-specific authorization details
+              createFoodLog: {
+                _appName: "HealthCoach API",
+                _authorizationDetails: {
+                  isActive: true,
+                  type: "bearer",
+                  in: "header",
+                  name: "Authorization",
+                  value: `Bearer ${token}`
+                }
+              },
+              
+              createExerciseLog: {
+                _appName: "HealthCoach API",
+                _authorizationDetails: {
+                  isActive: true,
+                  type: "bearer",
+                  in: "header",
+                  name: "Authorization",
+                  value: `Bearer ${token}`
+                }
+              },
+              
+              createHealthMetric: {
+                _appName: "HealthCoach API",
+                _authorizationDetails: {
+                  isActive: true,
+                  type: "bearer",
+                  in: "header",
+                  name: "Authorization",
+                  value: `Bearer ${token}`
+                }
+              },
+              
+              getFoodLogs: {
+                _appName: "HealthCoach API",
+                _authorizationDetails: {
+                  isActive: true,
+                  type: "bearer",
+                  in: "header",
+                  name: "Authorization",
+                  value: `Bearer ${token}`
+                }
               },
             },
           };
