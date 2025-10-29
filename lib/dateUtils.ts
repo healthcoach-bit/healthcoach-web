@@ -50,16 +50,21 @@ export function formatTime(timestamp: string | undefined | null, locale: string)
     return '--:--';
   }
   
-  const date = new Date(timestamp);
-  if (isNaN(date.getTime())) {
-    return '--:--';
+  // Extract time directly from timestamp WITHOUT timezone conversion
+  // Our timestamps are stored as display time (local time with .000Z marker)
+  // "2025-10-29T09:00:00.000Z" should display as "9:00 AM" (not converted)
+  const timeMatch = timestamp.match(/T(\d{2}):(\d{2})/);
+  if (timeMatch) {
+    let hour = parseInt(timeMatch[1]);
+    const minute = timeMatch[2];
+    const ampm = locale === 'es' 
+      ? (hour >= 12 ? 'p. m.' : 'a. m.')
+      : (hour >= 12 ? 'PM' : 'AM');
+    hour = hour % 12 || 12;
+    return `${hour}:${minute} ${ampm}`;
   }
   
-  return date.toLocaleTimeString(locale, {
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true,
-  });
+  return '--:--';
 }
 
 /**

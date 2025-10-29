@@ -55,24 +55,40 @@ export default function DashboardPage() {
   const calorieProgress = Math.min(100, (dailyTotals.calories / calorieGoal) * 100);
 
   const formatMealDateTime = (timestamp: string) => {
+    // Extract time WITHOUT timezone conversion
+    const extractTime = (ts: string) => {
+      const timeMatch = ts.match(/T(\d{2}):(\d{2})/);
+      if (timeMatch) {
+        let hour = parseInt(timeMatch[1]);
+        const minute = timeMatch[2];
+        const ampm = locale === 'es' 
+          ? (hour >= 12 ? 'p. m.' : 'a. m.')
+          : (hour >= 12 ? 'PM' : 'AM');
+        hour = hour % 12 || 12;
+        return `${hour}:${minute} ${ampm}`;
+      }
+      return '';
+    };
+
     const date = new Date(timestamp);
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
     
+    const time = extractTime(timestamp);
+    
     // Check if it's today
     if (date.toDateString() === today.toDateString()) {
-      return `${t.today} ${date.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit', hour12: true })}`;
+      return `${t.today} ${time}`;
     }
     
     // Check if it's yesterday
     if (date.toDateString() === yesterday.toDateString()) {
-      return `${t.yesterday} ${date.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit', hour12: true })}`;
+      return `${t.yesterday} ${time}`;
     }
     
     // Other dates: show short date + time
     const shortDate = date.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
-    const time = date.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit', hour12: true });
     return `${shortDate} ${time}`;
   };
 

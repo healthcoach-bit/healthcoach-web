@@ -11,7 +11,7 @@ import DeleteConfirmModal from '@/components/DeleteConfirmModal';
 import { useFoodLog } from '@/hooks/useFoodLogs';
 import { useAuth } from '@/hooks/useAuth';
 import { useUIStore } from '@/store/ui-store';
-import { formatDate } from '@/lib/dateUtils';
+import { formatDate, formatTime } from '@/lib/dateUtils';
 import { apiClient } from '@/lib/api';
 
 export default function FoodLogDetailPage() {
@@ -91,7 +91,7 @@ export default function FoodLogDetailPage() {
                   {formatDate(foodLog.timestamp, locale)}
                   {foodLog.timestamp && (
                     <span className="ml-2 text-gray-500">
-                      • {new Date(foodLog.timestamp).toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit', hour12: true })}
+                      • {formatTime(foodLog.timestamp, locale)}
                     </span>
                   )}
                 </p>
