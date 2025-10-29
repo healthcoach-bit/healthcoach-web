@@ -24,6 +24,11 @@ export default function FoodLogDetailPage() {
   const { data, isLoading, error } = useFoodLog(id);
   const foodLog = data?.foodLog;
 
+  console.log('🔍 Details Page - data:', data);
+  console.log('🔍 Details Page - foodLog:', foodLog);
+  console.log('🔍 Details Page - isLoading:', isLoading);
+  console.log('🔍 Details Page - error:', error);
+
   useEffect(() => {
     checkAuth();
   }, []);
@@ -78,8 +83,8 @@ export default function FoodLogDetailPage() {
     return t[typeKey] || type;
   };
 
-  const formattedDate = formatDate(foodLog.timestamp, locale);
-  const formattedTime = formatTime(foodLog.timestamp, locale);
+  const formattedDate = foodLog?.timestamp ? formatDate(foodLog.timestamp, locale) : '';
+  const formattedTime = foodLog?.timestamp ? formatTime(foodLog.timestamp, locale) : '';
 
   return (
     <div className="min-h-screen bg-gray-50">
