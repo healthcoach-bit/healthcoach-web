@@ -60,7 +60,12 @@ export default function NewLogPage() {
     try {
       setLoading(true);
       const response = await apiClient.getFoodLog(id);
-      const foodLog = response.foodLog;
+      const foodLog = response.foodLog || response.food_log;
+      
+      if (!foodLog) {
+        setError('No se pudo cargar el registro');
+        return;
+      }
       
       setMealType(foodLog.meal_type);
       setNotes(foodLog.notes || '');

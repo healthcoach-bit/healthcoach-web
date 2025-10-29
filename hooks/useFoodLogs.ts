@@ -33,9 +33,10 @@ export function useFoodLog(id: string) {
     queryKey: foodLogKeys.detail(id),
     queryFn: async () => {
       const response = await apiClient.getFoodLog(id);
-      console.log('🔍 useFoodLog raw response:', response);
-      console.log('🔍 foodLog data:', response?.foodLog || response?.food_log);
-      return response;
+      // Ensure we return the correct structure
+      return {
+        foodLog: response.foodLog || response.food_log || response
+      };
     },
     enabled: !!id,
     staleTime: 0, // Always fetch fresh data
