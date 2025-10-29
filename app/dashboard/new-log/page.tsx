@@ -13,6 +13,7 @@ import { useCreateFoodLog } from '@/hooks/useFoodLogs';
 import { usePhotoUpload } from '@/hooks/usePhotos';
 import { useUIStore } from '@/store/ui-store';
 import { apiClient } from '@/lib/api';
+import { useQueryClient } from '@tanstack/react-query';
 
 // Helper function to get local datetime string for datetime-local input
 const getLocalDateTimeString = (date: Date = new Date()): string => {
@@ -30,6 +31,7 @@ export default function NewLogPage() {
   const editId = searchParams.get('id');
   const isEditMode = !!editId;
   const { t } = useLanguage();
+  const queryClient = useQueryClient();
 
   const [loading, setLoading] = useState(isEditMode);
   const [mealType, setMealType] = useState('breakfast');
@@ -61,6 +63,8 @@ export default function NewLogPage() {
       setLoading(true);
       const response = await apiClient.getFoodLog(id);
       const foodLog = response.foodLog || response.food_log || response;
+      
+      console.log('📦 Loaded food log for editing:', foodLog);
       
       if (!foodLog || !foodLog.id) {
         setError('No se pudo cargar el registro');
@@ -173,7 +177,15 @@ export default function NewLogPage() {
         setUploadProgress(100);
       }
       
-      router.push('/dashboard');
+      // Invalidate queries to refresh data
+      await queryClient.invalidateQueries({ queryKey: ['foodLogs'] });
+      
+      // Redirect after save
+      if (isEditMode && editId) {
+        router.push(`/dashboard/food-logs/${editId}`);
+      } else {
+        router.push('/dashboard');
+      }
     } catch (err: any) {
       console.error('Error saving food log:', err);
       console.error('Error details:', {
