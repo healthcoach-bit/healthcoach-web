@@ -15,8 +15,11 @@ export default function WallaviAuth() {
     const setupWallaviAuth = async () => {
       // Check if Wallavi is loaded
       if (typeof window === 'undefined' || !window.wallavi) {
+        console.log('⏳ Wallavi not loaded yet, skipping auth setup');
         return;
       }
+      
+      console.log('🎯 Wallavi detected, setting up authentication...');
 
       try {
         // Force refresh to get latest token
@@ -27,7 +30,7 @@ export default function WallaviAuth() {
         if (token && userId) {
           const metadata = {
             user_metadata: {
-              // Authorization for API calls - must match EXACT integration name in Wallavi (HealthCoachAPI3)
+              // Authorization for API calls - must match EXACT integration name in Wallavi (HealthCoachAPI8)
               _authorizations_HealthCoachAPI8: {
                 type: 'bearer',
                 in: 'header',
@@ -44,10 +47,19 @@ export default function WallaviAuth() {
             },
           };
           
+          console.log('🔐 Wallavi Auth - Sending identify with token for user:', userId);
+          console.log('📋 Token (first 50 chars):', token.substring(0, 50));
+          console.log('🏷️ Integration name: HealthCoachAPI8');
+          
           window.wallavi.identify(metadata);
+          
+          console.log('✅ Wallavi identify() called successfully');
+        } else {
+          console.warn('⚠️ Wallavi Auth - Missing token or userId', { hasToken: !!token, hasUserId: !!userId });
         }
       } catch (error) {
-        // Silent fail - Wallavi auth is optional
+        console.error('❌ Wallavi Auth Error:', error);
+        console.log('⚠️ Wallavi authentication failed - user may need to login');
       }
     };
 
