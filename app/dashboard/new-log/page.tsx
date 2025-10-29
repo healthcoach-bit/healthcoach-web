@@ -101,8 +101,20 @@ export default function NewLogPage() {
       
       setExistingPhotos(foodLog.photos || []);
       
-      // Extract datetime directly from timestamp string WITHOUT timezone conversion
-      // "2025-10-29T09:00:00.000Z" -> "2025-10-29T09:00"
+      /**
+       * ⚠️ CRITICAL: Extract datetime for edit form WITHOUT timezone conversion
+       * 
+       * PROBLEM: datetime-local input needs format "2025-10-29T09:00"
+       * BUT if we do: new Date(timestamp) → Date object applies timezone conversion
+       * 
+       * SOLUTION: Extract directly from string with regex
+       * - Input: "2025-10-29T09:00:00.000Z" (display time, not UTC)
+       * - Extract: "2025-10-29T09:00"
+       * - NO timezone conversion applied
+       * 
+       * ❌ WRONG: new Date(foodLog.timestamp) + getLocalDateTimeString()
+       * ✅ CORRECT: Extract with regex
+       */
       const timestampMatch = foodLog.timestamp.match(/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/);
       if (timestampMatch) {
         setTimestamp(`${timestampMatch[1]}T${timestampMatch[2]}`);

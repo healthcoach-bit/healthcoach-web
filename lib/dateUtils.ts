@@ -42,8 +42,31 @@ export function formatShortDate(timestamp: string | undefined | null, locale: st
 }
 
 /**
+ * ⚠️ CRITICAL: TIMESTAMP DISPLAY POLICY
+ * 
  * Format timestamp to localized time string with AM/PM
- * Example: "7:46 PM" or "7:46 p. m."
+ * 
+ * IMPORTANT: Our timestamps are stored as "DISPLAY TIME" not actual UTC.
+ * - Format: "2025-10-29T09:00:00.000Z"
+ * - Meaning: 9:00 AM LOCAL time (NOT 9:00 AM UTC)
+ * 
+ * This function extracts time DIRECTLY from the string WITHOUT timezone conversion.
+ * 
+ * ❌ WRONG: new Date(timestamp).toLocaleTimeString()
+ *    → This would convert 9:00 AM UTC to 2:00 AM local (in UTC-7)
+ * 
+ * ✅ CORRECT: Extract "09:00" from string directly
+ *    → Displays 9:00 AM as intended
+ * 
+ * ⚠️ DO NOT use Date objects or toLocaleTimeString() for display!
+ * 
+ * @param timestamp - ISO string like "2025-10-29T09:00:00.000Z" (display time)
+ * @param locale - 'es' or 'en'
+ * @returns Formatted time like "9:00 a. m." or "9:00 AM"
+ * 
+ * @example
+ * formatTime('2025-10-29T09:00:00.000Z', 'es') // "9:00 a. m."
+ * formatTime('2025-10-29T14:30:00.000Z', 'es') // "2:30 p. m."
  */
 export function formatTime(timestamp: string | undefined | null, locale: string): string {
   if (!timestamp) {
@@ -51,8 +74,6 @@ export function formatTime(timestamp: string | undefined | null, locale: string)
   }
   
   // Extract time directly from timestamp WITHOUT timezone conversion
-  // Our timestamps are stored as display time (local time with .000Z marker)
-  // "2025-10-29T09:00:00.000Z" should display as "9:00 AM" (not converted)
   const timeMatch = timestamp.match(/T(\d{2}):(\d{2})/);
   if (timeMatch) {
     let hour = parseInt(timeMatch[1]);
