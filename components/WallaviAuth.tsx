@@ -28,7 +28,7 @@ export default function WallaviAuth() {
           const metadata = {
             user_metadata: {
               // Authorization for API calls - must match EXACT integration name in Wallavi (HealthCoachAPI3)
-              _authorizations_HealthCoachAPI4: {
+              _authorizations_HealthCoachAPI5: {
                 type: 'bearer',
                 in: 'header',
                 name: 'Authorization',
@@ -38,6 +38,8 @@ export default function WallaviAuth() {
               // Context Builder metadata - passed as query params
               _contextBuilder: {
                 user_id: userId,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                utc_offset: new Date().getTimezoneOffset() / -60,
               },
             },
           };
