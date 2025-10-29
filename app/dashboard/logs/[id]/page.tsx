@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { getCurrentUser } from 'aws-amplify/auth';
 import { useParams, useRouter } from 'next/navigation';
+import { Edit2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import DashboardHeader from '@/components/DashboardHeader';
 import DeleteConfirmModal from '@/components/DeleteConfirmModal';
@@ -40,6 +41,10 @@ export default function FoodLogDetailPage() {
       // Redirect to dashboard after successful deletion
       router.push('/dashboard');
     });
+  };
+
+  const handleEdit = () => {
+    router.push(`/dashboard/new-log?id=${id}`);
   };
 
   if (isLoading) {
@@ -88,7 +93,16 @@ export default function FoodLogDetailPage() {
             <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">
               {getMealTypeTranslation(foodLog.meal_type)}
             </h1>
-            <DeleteButton onClick={handleDelete} size="lg" />
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleEdit}
+                className="p-3 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                title="Editar"
+              >
+                <Edit2 className="w-6 h-6" />
+              </button>
+              <DeleteButton onClick={handleDelete} size="lg" />
+            </div>
           </div>
           <div className="flex items-center gap-2 text-gray-600">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

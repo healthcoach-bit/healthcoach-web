@@ -38,6 +38,7 @@ export default function NewLogPage() {
   const [timestamp, setTimestamp] = useState(getLocalDateTimeString());
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [existingPhotos, setExistingPhotos] = useState<any[]>([]);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -64,6 +65,7 @@ export default function NewLogPage() {
       setMealType(foodLog.meal_type);
       setNotes(foodLog.notes || '');
       setCalories(foodLog.total_calories?.toString() || '');
+      setExistingPhotos(foodLog.photos || []);
       const date = new Date(foodLog.timestamp);
       setTimestamp(getLocalDateTimeString(date));
     } catch (err: any) {
@@ -230,8 +232,28 @@ export default function NewLogPage() {
               step="1"
             />
 
-            {/* Photo Upload - Only in CREATE mode */}
-            {!isEditMode && (
+            {/* Photos Section */}
+            {isEditMode && existingPhotos.length > 0 ? (
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  {t.photos || 'Fotos'}
+                </label>
+                <div className="grid grid-cols-2 gap-4">
+                  {existingPhotos.map((photo: any) => (
+                    <div key={photo.id} className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden">
+                      <img
+                        src={photo.url || photo.path}
+                        alt="Food"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23f3f4f6" width="400" height="300"/%3E%3Ctext fill="%239ca3af" font-family="sans-serif" font-size="16" x="50%25" y="50%25" text-anchor="middle" dominant-baseline="middle"%3EImagen no disponible%3C/text%3E%3C/svg%3E';
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : !isEditMode && (
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
                 {t.photo} ({t.optional})
