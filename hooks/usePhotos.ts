@@ -77,6 +77,8 @@ export function useConfirmUpload() {
   return useMutation({
     mutationFn: (data: {
       photoId: string;
+      s3Key: string;
+      foodLogId?: string | null;
       width: number;
       height: number;
     }) => apiClient.confirmUpload(data),
@@ -131,6 +133,8 @@ export function usePhotoUpload() {
       // Step 5: Confirm upload
       await confirmUpload.mutateAsync({
         photoId: uploadUrlResponse.photoId,
+        s3Key: uploadUrlResponse.s3Key,
+        foodLogId: foodLogId || null,
         width: img.width,
         height: img.height,
       });

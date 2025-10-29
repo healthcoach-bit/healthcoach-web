@@ -95,6 +95,8 @@ export const apiClient = {
 
   async confirmUpload(data: {
     photoId: string;
+    s3Key: string;
+    foodLogId?: string | null;
     width: number;
     height: number;
   }) {
