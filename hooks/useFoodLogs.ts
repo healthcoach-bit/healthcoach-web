@@ -15,8 +15,11 @@ export const foodLogKeys = {
 export function useFoodLogs(params?: { from?: string; to?: string }) {
   return useQuery({
     queryKey: foodLogKeys.list(params),
-    queryFn: () => apiClient.getFoodLogs(params),
-    select: (data) => data.foodLogs || [],
+    queryFn: async () => {
+      const response = await apiClient.getFoodLogs(params);
+      return { foodLogs: response.foodLogs || response.food_logs || [] };
+    },
+    select: (data) => data.foodLogs,
     refetchInterval: 5000, // Fast polling - check every 5 seconds
     refetchIntervalInBackground: false, // Only when tab is active
     refetchOnWindowFocus: true, // Instant refresh when returning to tab
@@ -28,8 +31,16 @@ export function useFoodLogs(params?: { from?: string; to?: string }) {
 export function useFoodLog(id: string) {
   return useQuery({
     queryKey: foodLogKeys.detail(id),
-    queryFn: () => apiClient.getFoodLog(id),
+    queryFn: async () => {
+      const response = await apiClient.getFoodLog(id);
+      console.log('🔍 useFoodLog raw response:', response);
+      console.log('🔍 foodLog data:', response?.foodLog || response?.food_log);
+      return response;
+    },
     enabled: !!id,
+    staleTime: 0, // Always fetch fresh data
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 }
 
