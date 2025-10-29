@@ -182,12 +182,16 @@ export default function NewLogPage() {
       if (isEditMode && editId) {
         // UPDATE MODE
         setUploadProgress(30);
-        const selectedDate = new Date(timestamp);
+        // Format timestamp to match Wallavi format: local time with .000Z
+        // datetime-local input gives "2025-10-29T14:00"
+        // We convert to "2025-10-29T14:00:00.000Z" (display time, not UTC)
+        const formattedTimestamp = `${timestamp}:00.000Z`;
+        
         await apiClient.updateFoodLog(editId, {
           mealType,
           notes: notes.trim() || undefined,
           totalCalories: parsedCalories,
-          timestamp: selectedDate.toISOString(),
+          timestamp: formattedTimestamp,
         });
 
         // If user uploaded a new photo, replace the old ones
@@ -215,13 +219,16 @@ export default function NewLogPage() {
       } else {
         // CREATE MODE
         setUploadProgress(20);
-        const selectedDate = new Date(timestamp);
+        // Format timestamp to match Wallavi format: local time with .000Z
+        // datetime-local input gives "2025-10-29T14:00"
+        // We convert to "2025-10-29T14:00:00.000Z" (display time, not UTC)
+        const formattedTimestamp = `${timestamp}:00.000Z`;
         
         const payload = {
           mealType,
           notes: notes.trim() || undefined,
           totalCalories: parsedCalories,
-          timestamp: selectedDate.toISOString(),
+          timestamp: formattedTimestamp,
         };
         
         const foodLogResponse = await createFoodLog.mutateAsync(payload);
