@@ -182,10 +182,12 @@ export default function NewLogPage() {
       if (isEditMode && editId) {
         // UPDATE MODE
         setUploadProgress(30);
+        const selectedDate = new Date(timestamp);
         await apiClient.updateFoodLog(editId, {
           mealType,
           notes: notes.trim() || undefined,
           totalCalories: parsedCalories,
+          timestamp: selectedDate.toISOString(),
         });
 
         // If user uploaded a new photo, replace the old ones

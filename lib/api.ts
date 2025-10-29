@@ -67,12 +67,14 @@ export const apiClient = {
     mealType?: string;
     notes?: string;
     totalCalories?: number;
+    timestamp?: string;
   }) {
     // Convert camelCase to snake_case for API
     const payload: any = {};
     if (data.mealType !== undefined) payload.meal_type = data.mealType;
     if (data.notes !== undefined) payload.notes = data.notes;
     if (data.totalCalories !== undefined) payload.total_calories = data.totalCalories;
+    if (data.timestamp !== undefined) payload.timestamp = data.timestamp;
     
     const response = await api.put(`/food-logs/${id}`, payload);
     return response.data;
