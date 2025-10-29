@@ -100,8 +100,16 @@ export default function NewLogPage() {
       }
       
       setExistingPhotos(foodLog.photos || []);
-      const date = new Date(foodLog.timestamp);
-      setTimestamp(getLocalDateTimeString(date));
+      
+      // Extract datetime directly from timestamp string WITHOUT timezone conversion
+      // "2025-10-29T09:00:00.000Z" -> "2025-10-29T09:00"
+      const timestampMatch = foodLog.timestamp.match(/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/);
+      if (timestampMatch) {
+        setTimestamp(`${timestampMatch[1]}T${timestampMatch[2]}`);
+      } else {
+        // Fallback to current time if timestamp is invalid
+        setTimestamp(getLocalDateTimeString());
+      }
     } catch (err: any) {
       console.error('Error loading food log:', err);
       setError('Error al cargar el registro');
