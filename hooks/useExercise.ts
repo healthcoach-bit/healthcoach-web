@@ -84,10 +84,11 @@ export function useExerciseLogs(limit: number = 30) {
   return useQuery({
     queryKey: ['exerciseLogs', limit],
     queryFn: () => fetchExerciseLogs(limit),
-    refetchInterval: 5000, // Fast polling - check every 5 seconds
-    refetchIntervalInBackground: false, // Only when tab is active
-    refetchOnWindowFocus: true, // Instant refresh when returning to tab
-    refetchOnReconnect: true, // Refresh when internet reconnects
+    // Commented out for testing - reduce API calls
+    // refetchInterval: 5000, // Fast polling - check every 5 seconds
+    // refetchIntervalInBackground: false, // Only when tab is active
+    // refetchOnWindowFocus: true, // Instant refresh when returning to tab
+    // refetchOnReconnect: true, // Refresh when internet reconnects
   });
 }
 

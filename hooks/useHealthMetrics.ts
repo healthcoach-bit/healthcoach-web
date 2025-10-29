@@ -99,10 +99,11 @@ export function useHealthMetrics(type?: string, limit?: number) {
   return useQuery({
     queryKey: ['healthMetrics', type, limit],
     queryFn: () => fetchHealthMetrics(type, limit),
-    refetchInterval: 5000, // Fast polling - check every 5 seconds
-    refetchIntervalInBackground: false, // Only when tab is active
-    refetchOnWindowFocus: true, // Instant refresh when returning to tab
-    refetchOnReconnect: true, // Refresh when internet reconnects
+    // Commented out for testing - reduce API calls
+    // refetchInterval: 5000, // Fast polling - check every 5 seconds
+    // refetchIntervalInBackground: false, // Only when tab is active
+    // refetchOnWindowFocus: true, // Instant refresh when returning to tab
+    // refetchOnReconnect: true, // Refresh when internet reconnects
   });
 }
 

@@ -20,10 +20,11 @@ export function useFoodLogs(params?: { from?: string; to?: string }) {
       return { foodLogs: response.foodLogs || response.food_logs || [] };
     },
     select: (data) => data.foodLogs,
-    refetchInterval: 5000, // Fast polling - check every 5 seconds
-    refetchIntervalInBackground: false, // Only when tab is active
-    refetchOnWindowFocus: true, // Instant refresh when returning to tab
-    refetchOnReconnect: true, // Refresh when internet reconnects
+    // Commented out for testing - reduce API calls
+    // refetchInterval: 5000, // Fast polling - check every 5 seconds
+    // refetchIntervalInBackground: false, // Only when tab is active
+    // refetchOnWindowFocus: true, // Instant refresh when returning to tab
+    // refetchOnReconnect: true, // Refresh when internet reconnects
   });
 }
 
