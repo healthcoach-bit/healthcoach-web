@@ -3,11 +3,6 @@ import { fetchAuthSession } from 'aws-amplify/auth';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-if (!API_URL && typeof window !== 'undefined') {
-  console.warn('⚠️ NEXT_PUBLIC_API_URL is not configured. API calls will fail.');
-  console.warn('Please add NEXT_PUBLIC_API_URL to your .env.local file');
-}
-
 // Create axios instance
 const api = axios.create({
   baseURL: API_URL,
@@ -27,7 +22,6 @@ api.interceptors.request.use(async (config) => {
     }
   } catch (error) {
     // Not authenticated, continue without token
-    console.log('No auth token available');
   }
   
   return config;

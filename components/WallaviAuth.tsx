@@ -15,7 +15,6 @@ export default function WallaviAuth() {
     const setupWallaviAuth = async () => {
       // Check if Wallavi is loaded
       if (typeof window === 'undefined' || !window.wallavi) {
-        console.log('⏳ Waiting for Wallavi to load...');
         return;
       }
 
@@ -44,14 +43,9 @@ export default function WallaviAuth() {
           };
           
           window.wallavi.identify(metadata);
-          console.log('✅ Wallavi authenticated - User ID:', userId);
-          console.log('🔑 Token expires:', new Date((session.tokens?.idToken?.payload?.exp as number) * 1000).toLocaleTimeString());
-          console.log('📦 Metadata sent to Wallavi:', JSON.stringify(metadata, null, 2));
-        } else {
-          console.log('⚠️ No auth session found');
         }
       } catch (error) {
-        console.error('⚠️ Wallavi auth error:', error);
+        // Silent fail - Wallavi auth is optional
       }
     };
 
@@ -71,7 +65,6 @@ export default function WallaviAuth() {
 
     // Refresh token every 50 minutes (tokens expire after 60 minutes)
     const refreshInterval = setInterval(() => {
-      console.log('🔄 Refreshing Cognito token...');
       setupWallaviAuth();
     }, 50 * 60 * 1000); // 50 minutes
 
