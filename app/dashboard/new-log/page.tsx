@@ -193,11 +193,21 @@ export default function NewLogPage() {
         // If user uploaded a new photo, replace the old ones
         if (photo) {
           setUploadProgress(50);
-          // Delete existing photos first
+          // Delete existing photos first (CRITICAL: wait for completion)
           if (existingPhotos.length > 0) {
-            await apiClient.deletePhotosByFoodLogId(editId);
+            console.log('🗑️ Deleting existing photos for food log:', editId);
+            try {
+              await apiClient.deletePhotosByFoodLogId(editId);
+              console.log('✅ Photos deleted successfully');
+              // Wait a bit to ensure delete is processed
+              await new Promise(resolve => setTimeout(resolve, 500));
+            } catch (err) {
+              console.error('❌ Failed to delete photos:', err);
+              // Continue anyway to upload new photo
+            }
           }
           // Upload new photo
+          console.log('📤 Uploading new photo');
           await uploadPhoto(photo, editId, setUploadProgress);
         }
 
@@ -290,17 +300,15 @@ export default function NewLogPage() {
               </div>
             </div>
 
-            {/* Date & Time - Only in CREATE mode */}
-            {!isEditMode && (
-              <FormInput
-                id="timestamp"
-                type="datetime-local"
-                label={t.dateTime}
-                value={timestamp}
-                onChange={(e) => setTimestamp(e.target.value)}
-                required
-              />
-            )}
+            {/* Date & Time */}
+            <FormInput
+              id="timestamp"
+              type="datetime-local"
+              label={t.dateTime}
+              value={timestamp}
+              onChange={(e) => setTimestamp(e.target.value)}
+              required
+            />
 
             {/* Calories */}
             <FormInput
@@ -324,20 +332,46 @@ export default function NewLogPage() {
                 {/* Show existing photos if any */}
                 {existingPhotos.length > 0 && !photoPreview && (
                   <div className="mb-4">
-                    <p className="text-sm text-gray-600 mb-2">Foto actual:</p>
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-sm text-gray-600">
+                        Foto actual {existingPhotos.length > 1 && (
+                          <span className="text-orange-600 font-semibold">
+                            ({existingPhotos.length} duplicadas)
+                          </span>
+                        )}
+                      </p>
+                      {existingPhotos.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            if (confirm('¿Limpiar todas las fotos duplicadas?')) {
+                              try {
+                                await apiClient.deletePhotosByFoodLogId(editId!);
+                                setExistingPhotos([]);
+                                alert('Fotos eliminadas. Puedes subir una nueva.');
+                              } catch (err) {
+                                alert('Error al eliminar fotos');
+                              }
+                            }
+                          }}
+                          className="text-xs text-red-600 hover:text-red-700 font-medium"
+                        >
+                          🗑️ Limpiar duplicadas
+                        </button>
+                      )}
+                    </div>
                     <div className="max-w-md mx-auto">
-                      {existingPhotos.map((photo: any) => (
-                        <div key={photo.id} className="relative w-full bg-gray-100 rounded-lg overflow-hidden" style={{ maxHeight: '400px' }}>
-                          <img
-                            src={photo.url || photo.path}
-                            alt="Food"
-                            className="w-full h-auto object-contain"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23f3f4f6" width="400" height="300"/%3E%3Ctext fill="%239ca3af" font-family="sans-serif" font-size="16" x="50%25" y="50%25" text-anchor="middle" dominant-baseline="middle"%3EImagen no disponible%3C/text%3E%3C/svg%3E';
-                            }}
-                          />
-                        </div>
-                      ))}
+                      {/* Show only the first photo */}
+                      <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden" style={{ maxHeight: '400px' }}>
+                        <img
+                          src={existingPhotos[0].url || existingPhotos[0].path}
+                          alt="Food"
+                          className="w-full h-auto object-contain"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23f3f4f6" width="400" height="300"/%3E%3Ctext fill="%239ca3af" font-family="sans-serif" font-size="16" x="50%25" y="50%25" text-anchor="middle" dominant-baseline="middle"%3EImagen no disponible%3C/text%3E%3C/svg%3E';
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
                 )}
