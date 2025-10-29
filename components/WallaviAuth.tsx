@@ -28,7 +28,7 @@ export default function WallaviAuth() {
           const metadata = {
             user_metadata: {
               // Authorization for API calls - must match EXACT integration name in Wallavi (HealthCoachAPI3)
-              _authorizations_HealthCoachAPI5: {
+              _authorizations_HealthCoachAPI6: {
                 type: 'bearer',
                 in: 'header',
                 name: 'Authorization',
