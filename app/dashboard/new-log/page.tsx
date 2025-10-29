@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { getCurrentUser } from 'aws-amplify/auth';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import DashboardHeader from '@/components/DashboardHeader';
@@ -12,6 +12,7 @@ import FormTextarea from '@/components/FormTextarea';
 import { useCreateFoodLog } from '@/hooks/useFoodLogs';
 import { usePhotoUpload } from '@/hooks/usePhotos';
 import { useUIStore } from '@/store/ui-store';
+import { apiClient } from '@/lib/api';
 
 // Helper function to get local datetime string for datetime-local input
 const getLocalDateTimeString = (date: Date = new Date()): string => {
@@ -25,11 +26,26 @@ const getLocalDateTimeString = (date: Date = new Date()): string => {
 
 export default function NewLogPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const editId = searchParams.get('id');
+  const isEditMode = !!editId;
   const { t } = useLanguage();
+
+  const [loading, setLoading] = useState(isEditMode);
+  const [mealType, setMealType] = useState('breakfast');
+  const [notes, setNotes] = useState('');
+  const [calories, setCalories] = useState('');
+  const [timestamp, setTimestamp] = useState(getLocalDateTimeString());
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     checkAuth();
-  }, []);
+    if (isEditMode && editId) {
+      loadFoodLog(editId);
+    }
+  }, [editId]);
 
   const checkAuth = async () => {
     try {
@@ -38,14 +54,25 @@ export default function NewLogPage() {
       router.push('/login');
     }
   };
-  
-  const [mealType, setMealType] = useState('breakfast');
-  const [notes, setNotes] = useState('');
-  const [calories, setCalories] = useState('');
-  const [timestamp, setTimestamp] = useState(getLocalDateTimeString());
-  const [photo, setPhoto] = useState<File | null>(null);
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-  const [error, setError] = useState('');
+
+  const loadFoodLog = async (id: string) => {
+    try {
+      setLoading(true);
+      const response = await apiClient.getFoodLog(id);
+      const foodLog = response.foodLog;
+      
+      setMealType(foodLog.meal_type);
+      setNotes(foodLog.notes || '');
+      setCalories(foodLog.total_calories?.toString() || '');
+      const date = new Date(foodLog.timestamp);
+      setTimestamp(getLocalDateTimeString(date));
+    } catch (err: any) {
+      console.error('Error loading food log:', err);
+      setError('Error al cargar el registro');
+    } finally {
+      setLoading(false);
+    }
+  };
   
   // Zustand state for upload progress
   const uploadProgress = useUIStore((state) => state.uploadProgress);
@@ -96,36 +123,41 @@ export default function NewLogPage() {
     setUploadProgress(0);
 
     try {
-      // Step 1: Create food log
-      setUploadProgress(20);
-      
-      // Convert datetime-local to ISO string
-      // datetime-local already gives us the local time, just convert to ISO
-      const selectedDate = new Date(timestamp);
-      
-      const payload = {
-        mealType,
-        notes: notes.trim() || undefined,
-        totalCalories: calories ? parseInt(calories) : undefined,
-        timestamp: selectedDate.toISOString(),
-      };
-      
-      const foodLogResponse = await createFoodLog.mutateAsync(payload);
+      if (isEditMode && editId) {
+        // UPDATE MODE
+        setUploadProgress(50);
+        await apiClient.updateFoodLog(editId, {
+          mealType,
+          notes: notes.trim() || undefined,
+          totalCalories: calories ? parseInt(calories) : undefined,
+        });
+        setUploadProgress(100);
+      } else {
+        // CREATE MODE
+        setUploadProgress(20);
+        const selectedDate = new Date(timestamp);
+        
+        const payload = {
+          mealType,
+          notes: notes.trim() || undefined,
+          totalCalories: calories ? parseInt(calories) : undefined,
+          timestamp: selectedDate.toISOString(),
+        };
+        
+        const foodLogResponse = await createFoodLog.mutateAsync(payload);
+        const foodLogId = foodLogResponse.foodLog.id;
 
-      const foodLogId = foodLogResponse.foodLog.id;
+        if (photo) {
+          await uploadPhoto(photo, foodLogId, setUploadProgress);
+        }
 
-      // Step 2: Upload photo if provided
-      if (photo) {
-        await uploadPhoto(photo, foodLogId, setUploadProgress);
+        setUploadProgress(100);
       }
-
-      setUploadProgress(100);
       
-      // Redirect to dashboard
       router.push('/dashboard');
     } catch (err: any) {
-      console.error('Error creating food log:', err);
-      setError(err.response?.data?.message || err.message || 'Failed to create food log');
+      console.error('Error saving food log:', err);
+      setError(err.response?.data?.message || err.message || 'Error al guardar');
       setUploadProgress(0);
     }
   };
@@ -136,6 +168,14 @@ export default function NewLogPage() {
 
       <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <div className="bg-white rounded-lg shadow-md p-6 sm:p-8">
+          {loading && (
+            <div className="text-center py-8">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-solid border-green-600 border-r-transparent"></div>
+              <p className="mt-2 text-gray-600">Cargando...</p>
+            </div>
+          )}
+          {!loading && (
+          <>
           {error && <ErrorAlert message={error} />}
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -166,15 +206,17 @@ export default function NewLogPage() {
               </div>
             </div>
 
-            {/* Date & Time */}
-            <FormInput
-              id="timestamp"
-              type="datetime-local"
-              label={t.dateTime}
-              value={timestamp}
-              onChange={(e) => setTimestamp(e.target.value)}
-              required
-            />
+            {/* Date & Time - Only in CREATE mode */}
+            {!isEditMode && (
+              <FormInput
+                id="timestamp"
+                type="datetime-local"
+                label={t.dateTime}
+                value={timestamp}
+                onChange={(e) => setTimestamp(e.target.value)}
+                required
+              />
+            )}
 
             {/* Calories */}
             <FormInput
@@ -188,7 +230,8 @@ export default function NewLogPage() {
               step="1"
             />
 
-            {/* Photo Upload */}
+            {/* Photo Upload - Only in CREATE mode */}
+            {!isEditMode && (
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
                 {t.photo} ({t.optional})
@@ -235,6 +278,7 @@ export default function NewLogPage() {
                 </div>
               )}
             </div>
+            )}
 
             {/* Notes */}
             <FormTextarea
@@ -277,10 +321,12 @@ export default function NewLogPage() {
                 disabled={isLoading}
                 className="flex-1 py-3 px-4 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {isLoading ? t.creating : t.createFoodLog}
+                {isLoading ? (isEditMode ? 'Actualizando...' : t.creating) : (isEditMode ? 'Actualizar' : t.createFoodLog)}
               </button>
             </div>
           </form>
+          </>
+          )}
         </div>
       </main>
     </div>

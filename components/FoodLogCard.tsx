@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Edit2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import DeleteButton from './DeleteButton';
 import { formatDateTime } from '@/lib/dateUtils';
@@ -21,11 +23,16 @@ export default function FoodLogCard({
   onDelete
 }: FoodLogCardProps) {
   const { t, locale } = useLanguage();
+  const router = useRouter();
 
   // Translate meal type from database value to i18n
   const getMealTypeTranslation = (type: string): string => {
     const typeKey = type.toLowerCase() as 'breakfast' | 'lunch' | 'dinner' | 'snack';
     return t[typeKey] || type;
+  };
+
+  const handleEdit = () => {
+    router.push(`/dashboard/new-log?id=${id}`);
   };
 
   return (
@@ -45,6 +52,13 @@ export default function FoodLogCard({
               {totalCalories} {t.kcal || 'kcal'}
             </span>
           )}
+          <button
+            onClick={handleEdit}
+            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+            title="Editar"
+          >
+            <Edit2 className="w-5 h-5" />
+          </button>
           <DeleteButton onClick={onDelete} size="md" />
         </div>
       </div>
