@@ -65,6 +65,12 @@ export default function NewLogPage() {
       const foodLog = response.foodLog || response.food_log || response;
       
       console.log('📦 Loaded food log for editing:', foodLog);
+      console.log('🔍 Data types:', {
+        meal_type: typeof foodLog.meal_type,
+        notes: typeof foodLog.notes,
+        total_calories: typeof foodLog.total_calories,
+        total_calories_value: foodLog.total_calories
+      });
       
       if (!foodLog || !foodLog.id) {
         setError('No se pudo cargar el registro');
@@ -72,8 +78,27 @@ export default function NewLogPage() {
       }
       
       setMealType(foodLog.meal_type);
-      setNotes(foodLog.notes || '');
-      setCalories(foodLog.total_calories?.toString() || '');
+      
+      // Handle potentially corrupted notes (if notes === meal_type, it's corrupted)
+      if (foodLog.notes && foodLog.notes === foodLog.meal_type) {
+        console.warn('⚠️ Corrupted notes data detected:', foodLog.notes);
+        setNotes('');
+      } else {
+        setNotes(foodLog.notes || '');
+      }
+      
+      // Safely convert total_calories to string, handle corrupted data
+      const caloriesValue = foodLog.total_calories;
+      if (typeof caloriesValue === 'number') {
+        setCalories(caloriesValue.toString());
+      } else if (typeof caloriesValue === 'string' && !isNaN(Number(caloriesValue))) {
+        setCalories(caloriesValue);
+      } else {
+        // Corrupted data - reset to empty
+        console.warn('⚠️ Corrupted calories data detected:', caloriesValue);
+        setCalories('');
+      }
+      
       setExistingPhotos(foodLog.photos || []);
       const date = new Date(foodLog.timestamp);
       setTimestamp(getLocalDateTimeString(date));
@@ -133,6 +158,26 @@ export default function NewLogPage() {
     setError('');
     setUploadProgress(0);
 
+    // Validate data before submission
+    if (calories && isNaN(parseInt(calories))) {
+      setError('Las calorías deben ser un número válido');
+      return;
+    }
+
+    const parsedCalories = calories ? parseInt(calories) : undefined;
+    if (parsedCalories !== undefined && parsedCalories < 0) {
+      setError('Las calorías no pueden ser negativas');
+      return;
+    }
+
+    console.log('📤 Submitting food log:', {
+      mealType,
+      notes,
+      calories,
+      parsedCalories,
+      isEditMode
+    });
+
     try {
       if (isEditMode && editId) {
         // UPDATE MODE
@@ -140,7 +185,7 @@ export default function NewLogPage() {
         await apiClient.updateFoodLog(editId, {
           mealType,
           notes: notes.trim() || undefined,
-          totalCalories: calories ? parseInt(calories) : undefined,
+          totalCalories: parsedCalories,
         });
 
         // If user uploaded a new photo, replace the old ones
@@ -163,7 +208,7 @@ export default function NewLogPage() {
         const payload = {
           mealType,
           notes: notes.trim() || undefined,
-          totalCalories: calories ? parseInt(calories) : undefined,
+          totalCalories: parsedCalories,
           timestamp: selectedDate.toISOString(),
         };
         
