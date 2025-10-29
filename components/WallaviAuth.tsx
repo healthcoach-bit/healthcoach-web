@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { fetchAuthSession } from 'aws-amplify/auth';
+import { Hub } from 'aws-amplify/utils';
 
 /**
  * WallaviAuth Component
@@ -11,6 +12,23 @@ import { fetchAuthSession } from 'aws-amplify/auth';
  */
 export default function WallaviAuth() {
   useEffect(() => {
+    // Clear Wallavi authentication
+    const clearWallaviAuth = () => {
+      if (typeof window === 'undefined' || !window.wallavi) {
+        return;
+      }
+      
+      console.log('🚪 Clearing Wallavi authentication on logout...');
+      
+      // Clear by identifying with empty metadata
+      try {
+        window.wallavi.identify({ user_metadata: {} });
+        console.log('✅ Wallavi authentication cleared');
+      } catch (error) {
+        console.error('❌ Error clearing Wallavi auth:', error);
+      }
+    };
+    
     // Wait for Wallavi to be initialized
     const setupWallaviAuth = async () => {
       // Check if Wallavi is loaded
@@ -91,10 +109,34 @@ export default function WallaviAuth() {
       setupWallaviAuth();
     }, 50 * 60 * 1000); // 50 minutes
 
+    // Listen for auth events (signIn, signOut, etc.)
+    const hubUnsubscribe = Hub.listen('auth', ({ payload }) => {
+      const { event } = payload;
+      
+      console.log('🔔 Auth event detected:', event);
+      
+      switch (event) {
+        case 'signedIn':
+          console.log('👤 User signed in, setting up Wallavi auth...');
+          // Wait a bit for token to be available
+          setTimeout(setupWallaviAuth, 1000);
+          break;
+        case 'signedOut':
+          console.log('👋 User signed out, clearing Wallavi auth...');
+          clearWallaviAuth();
+          break;
+        case 'tokenRefresh':
+          console.log('🔄 Token refreshed, updating Wallavi auth...');
+          setupWallaviAuth();
+          break;
+      }
+    });
+
     return () => {
       timeouts.forEach(clearTimeout);
       clearInterval(checkInterval);
       clearInterval(refreshInterval);
+      hubUnsubscribe(); // Unsubscribe from Hub events
     };
   }, []);
 
