@@ -17,8 +17,10 @@ export function useFoodLogs(params?: { from?: string; to?: string }) {
     queryKey: foodLogKeys.list(params),
     queryFn: () => apiClient.getFoodLogs(params),
     select: (data) => data.foodLogs || [],
-    refetchInterval: 10000, // Auto-refresh every 10 seconds to catch Wallavi chat insertions
-    refetchIntervalInBackground: false, // Only refetch when tab is active
+    refetchInterval: 5000, // Fast polling - check every 5 seconds
+    refetchIntervalInBackground: false, // Only when tab is active
+    refetchOnWindowFocus: true, // Instant refresh when returning to tab
+    refetchOnReconnect: true, // Refresh when internet reconnects
   });
 }
 

@@ -28,25 +28,7 @@ export default function WallaviAuth() {
         if (token && userId) {
           const metadata = {
             user_metadata: {
-              // Environment context - immediate user context
-              _environmentContext: {
-                user: {
-                  id: userId,
-                  authenticated: true,
-                  tier: "standard"
-                },
-                app: {
-                  name: "HealthCoach",
-                  features: ["food_logging", "exercise_tracking", "health_metrics", "ai_coach"],
-                  version: "1.0.0"
-                },
-                session: {
-                  token_expires: new Date((session.tokens?.idToken?.payload?.exp as number) * 1000).toISOString(),
-                  locale: "es-US"
-                }
-              },
-              
-              // Global authorization for API calls
+              // Authorization for API calls - must match EXACT integration name in Wallavi (HealthCoachAPI3)
               _authorizations_HealthCoachAPI4: {
                 type: 'bearer',
                 in: 'header',
@@ -54,55 +36,9 @@ export default function WallaviAuth() {
                 isActive: true,
                 value: `Bearer ${token}`,
               },
-              
               // Context Builder metadata - passed as query params
               _contextBuilder: {
                 user_id: userId,
-              },
-              
-              // Function-specific authorization details
-              createFoodLog: {
-                _appName: "HealthCoach API",
-                _authorizationDetails: {
-                  isActive: true,
-                  type: "bearer",
-                  in: "header",
-                  name: "Authorization",
-                  value: `Bearer ${token}`
-                }
-              },
-              
-              createExerciseLog: {
-                _appName: "HealthCoach API",
-                _authorizationDetails: {
-                  isActive: true,
-                  type: "bearer",
-                  in: "header",
-                  name: "Authorization",
-                  value: `Bearer ${token}`
-                }
-              },
-              
-              createHealthMetric: {
-                _appName: "HealthCoach API",
-                _authorizationDetails: {
-                  isActive: true,
-                  type: "bearer",
-                  in: "header",
-                  name: "Authorization",
-                  value: `Bearer ${token}`
-                }
-              },
-              
-              getFoodLogs: {
-                _appName: "HealthCoach API",
-                _authorizationDetails: {
-                  isActive: true,
-                  type: "bearer",
-                  in: "header",
-                  name: "Authorization",
-                  value: `Bearer ${token}`
-                }
               },
             },
           };
