@@ -33,11 +33,21 @@ export default function DashboardPage() {
 
   // Calculate daily totals - ONLY for today's meals
   const dailyTotals = todaysMeals.reduce((acc: { calories: number; protein: number; carbs: number; fat: number }, log: any) => {
+    // Safely parse numeric values (handle corrupted string data)
+    const parseNum = (val: any): number => {
+      if (typeof val === 'number') return val;
+      if (typeof val === 'string') {
+        const parsed = Number(val);
+        return isNaN(parsed) ? 0 : parsed;
+      }
+      return 0;
+    };
+    
     return {
-      calories: acc.calories + (log.total_calories || 0),
-      protein: acc.protein + (log.total_protein || 0),
-      carbs: acc.carbs + (log.total_carbs || 0),
-      fat: acc.fat + (log.total_fat || 0),
+      calories: acc.calories + parseNum(log.total_calories),
+      protein: acc.protein + parseNum(log.total_protein),
+      carbs: acc.carbs + parseNum(log.total_carbs),
+      fat: acc.fat + parseNum(log.total_fat),
     };
   }, { calories: 0, protein: 0, carbs: 0, fat: 0 });
 
