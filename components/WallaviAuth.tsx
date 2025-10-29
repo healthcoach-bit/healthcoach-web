@@ -39,10 +39,12 @@ export default function WallaviAuth() {
                 value: `Bearer ${token}`,
               },
               // Context Builder metadata - passed as query params
+              // ⚠️ CRITICAL: DO NOT send timezone/offset info
+              // Our system uses "display time" (local time + .000Z marker), NOT actual UTC
+              // If we send timezone, Wallavi may apply conversions and break timestamp consistency
               _contextBuilder: {
                 user_id: userId,
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                utc_offset: new Date().getTimezoneOffset() / -60,
+                // REMOVED: timezone and utc_offset - causes timestamp conversion issues
               },
             },
           };
