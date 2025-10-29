@@ -24,6 +24,13 @@ export default function FoodLogCard({
 }: FoodLogCardProps) {
   const { t, locale } = useLanguage();
   const router = useRouter();
+  
+  // Safely parse calories (handle string or number)
+  const caloriesNum = typeof totalCalories === 'number' 
+    ? totalCalories 
+    : (typeof totalCalories === 'string' && !isNaN(Number(totalCalories))) 
+      ? Number(totalCalories) 
+      : undefined;
 
   // Translate meal type from database value to i18n
   const getMealTypeTranslation = (type: string): string => {
@@ -47,9 +54,9 @@ export default function FoodLogCard({
           </p>
         </div>
         <div className="flex items-start gap-2">
-          {totalCalories && (
+          {caloriesNum && (
             <span className="bg-green-100 text-green-800 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap">
-              {totalCalories} {t.kcal || 'kcal'}
+              {caloriesNum} {t.kcal || 'kcal'}
             </span>
           )}
           <button
