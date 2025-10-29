@@ -42,7 +42,7 @@ export default function FoodLogCard({
         <div className="flex items-start gap-2">
           {totalCalories && (
             <span className="bg-green-100 text-green-800 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap">
-              {totalCalories} cal
+              {totalCalories} {t.kcal || 'kcal'}
             </span>
           )}
           <DeleteButton onClick={onDelete} size="md" />
