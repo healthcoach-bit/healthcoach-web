@@ -60,9 +60,9 @@ export default function NewLogPage() {
     try {
       setLoading(true);
       const response = await apiClient.getFoodLog(id);
-      const foodLog = response.foodLog || response.food_log;
+      const foodLog = response.foodLog || response.food_log || response;
       
-      if (!foodLog) {
+      if (!foodLog || !foodLog.id) {
         setError('No se pudo cargar el registro');
         return;
       }

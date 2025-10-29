@@ -1,21 +1,37 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
+import { Edit2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import DashboardHeader from '@/components/DashboardHeader';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import ErrorAlert from '@/components/ErrorAlert';
+import DeleteButton from '@/components/DeleteButton';
+import DeleteConfirmModal from '@/components/DeleteConfirmModal';
 import { useFoodLog } from '@/hooks/useFoodLogs';
 import { useAuth } from '@/hooks/useAuth';
+import { useUIStore } from '@/store/ui-store';
 import { formatDate } from '@/lib/dateUtils';
 
 export default function FoodLogDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const { t, locale } = useLanguage();
   const foodLogId = params.id as string;
   const { isCheckingAuth } = useAuth();
+  const openDeleteModal = useUIStore((state) => state.openDeleteModal);
 
   const { data: foodLog, isLoading, error } = useFoodLog(foodLogId);
+
+  const handleDelete = () => {
+    openDeleteModal(foodLogId, 'foodLog', () => {
+      router.push('/dashboard');
+    });
+  };
+
+  const handleEdit = () => {
+    router.push(`/dashboard/new-log?id=${foodLogId}`);
+  };
 
   if (isCheckingAuth || isLoading) {
     return <LoadingSpinner fullScreen />;
@@ -45,24 +61,37 @@ export default function FoodLogDetailPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <DashboardHeader showBackButton backHref="/dashboard" />
+      <DeleteConfirmModal />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <span className="text-4xl">{getMealIcon(foodLog.meal_type)}</span>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 capitalize">
-                {t[foodLog.meal_type as keyof typeof t] || foodLog.meal_type}
-              </h1>
-              <p className="text-gray-600">
-                {formatDate(foodLog.timestamp, locale)}
-                {foodLog.timestamp && (
-                  <span className="ml-2 text-gray-500">
-                    • {new Date(foodLog.timestamp).toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit', hour12: true })}
-                  </span>
-                )}
-              </p>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-3">
+              <span className="text-4xl">{getMealIcon(foodLog.meal_type)}</span>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 capitalize">
+                  {t[foodLog.meal_type as keyof typeof t] || foodLog.meal_type}
+                </h1>
+                <p className="text-gray-600">
+                  {formatDate(foodLog.timestamp, locale)}
+                  {foodLog.timestamp && (
+                    <span className="ml-2 text-gray-500">
+                      • {new Date(foodLog.timestamp).toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit', hour12: true })}
+                    </span>
+                  )}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleEdit}
+                className="p-3 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                title="Editar"
+              >
+                <Edit2 className="w-6 h-6" />
+              </button>
+              <DeleteButton onClick={handleDelete} size="lg" />
             </div>
           </div>
         </div>

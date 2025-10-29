@@ -70,7 +70,7 @@ export default function FoodLogCard({
       )}
       
       <Link
-        href={`/dashboard/logs/${id}`}
+        href={`/dashboard/food-logs/${id}`}
         className="text-green-600 hover:text-green-700 font-medium text-xs sm:text-sm inline-flex items-center gap-1"
       >
         {t.viewDetails}
