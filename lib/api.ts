@@ -68,7 +68,13 @@ export const apiClient = {
     notes?: string;
     totalCalories?: number;
   }) {
-    const response = await api.patch(`/food-logs/${id}`, data);
+    // Convert camelCase to snake_case for API
+    const payload: any = {};
+    if (data.mealType !== undefined) payload.meal_type = data.mealType;
+    if (data.notes !== undefined) payload.notes = data.notes;
+    if (data.totalCalories !== undefined) payload.total_calories = data.totalCalories;
+    
+    const response = await api.put(`/food-logs/${id}`, payload);
     return response.data;
   },
 
