@@ -107,6 +107,13 @@ export const apiClient = {
     return response.data;
   },
 
+  async deletePhotosByFoodLogId(foodLogId: string) {
+    const response = await api.delete('/photos', {
+      params: { food_log_id: foodLogId }
+    });
+    return response.data;
+  },
+
   // Upload file to S3 using presigned URL
   async uploadToS3(presignedUrl: string, file: File) {
     await axios.put(presignedUrl, file, {

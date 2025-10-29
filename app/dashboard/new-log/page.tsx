@@ -127,12 +127,24 @@ export default function NewLogPage() {
     try {
       if (isEditMode && editId) {
         // UPDATE MODE
-        setUploadProgress(50);
+        setUploadProgress(30);
         await apiClient.updateFoodLog(editId, {
           mealType,
           notes: notes.trim() || undefined,
           totalCalories: calories ? parseInt(calories) : undefined,
         });
+
+        // If user uploaded a new photo, replace the old ones
+        if (photo) {
+          setUploadProgress(50);
+          // Delete existing photos first
+          if (existingPhotos.length > 0) {
+            await apiClient.deletePhotosByFoodLogId(editId);
+          }
+          // Upload new photo
+          await uploadPhoto(photo, editId, setUploadProgress);
+        }
+
         setUploadProgress(100);
       } else {
         // CREATE MODE
@@ -233,27 +245,78 @@ export default function NewLogPage() {
             />
 
             {/* Photos Section */}
-            {isEditMode && existingPhotos.length > 0 ? (
+            {isEditMode ? (
               <div>
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  {t.photos || 'Fotos'}
+                  Foto ({t.optional})
                 </label>
-                <div className="grid grid-cols-2 gap-4">
-                  {existingPhotos.map((photo: any) => (
-                    <div key={photo.id} className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden">
-                      <img
-                        src={photo.url || photo.path}
-                        alt="Food"
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23f3f4f6" width="400" height="300"/%3E%3Ctext fill="%239ca3af" font-family="sans-serif" font-size="16" x="50%25" y="50%25" text-anchor="middle" dominant-baseline="middle"%3EImagen no disponible%3C/text%3E%3C/svg%3E';
-                        }}
-                      />
+                
+                {/* Show existing photos if any */}
+                {existingPhotos.length > 0 && !photoPreview && (
+                  <div className="mb-4">
+                    <p className="text-sm text-gray-600 mb-2">Foto actual:</p>
+                    <div className="grid grid-cols-2 gap-4">
+                      {existingPhotos.map((photo: any) => (
+                        <div key={photo.id} className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden">
+                          <img
+                            src={photo.url || photo.path}
+                            alt="Food"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23f3f4f6" width="400" height="300"/%3E%3Ctext fill="%239ca3af" font-family="sans-serif" font-size="16" x="50%25" y="50%25" text-anchor="middle" dominant-baseline="middle"%3EImagen no disponible%3C/text%3E%3C/svg%3E';
+                            }}
+                          />
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                )}
+
+                {/* Upload new photo section */}
+                {!photoPreview ? (
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-green-500 transition-colors">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoChange}
+                      className="hidden"
+                      id="photo-upload-edit"
+                      disabled={isLoading}
+                    />
+                    <label
+                      htmlFor="photo-upload-edit"
+                      className="cursor-pointer flex flex-col items-center"
+                    >
+                      <svg className="w-12 h-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span className="text-sm font-medium text-gray-700">
+                        {existingPhotos.length > 0 ? 'Cambiar foto' : 'Agregar foto'}
+                      </span>
+                      <span className="text-xs text-gray-500 mt-1">{t.imageSize || 'PNG, JPG hasta 10MB'}</span>
+                    </label>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <img
+                      src={photoPreview}
+                      alt="Preview"
+                      className="w-full h-64 object-cover rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={removePhoto}
+                      disabled={isLoading}
+                      className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full hover:bg-red-700 transition-colors disabled:opacity-50"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
               </div>
-            ) : !isEditMode && (
+            ) : (
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
                 {t.photo} ({t.optional})
