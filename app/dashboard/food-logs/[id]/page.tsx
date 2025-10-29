@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { Edit2 } from 'lucide-react';
+import { Edit2, Trash2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import DashboardHeader from '@/components/DashboardHeader';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -12,6 +12,7 @@ import { useFoodLog } from '@/hooks/useFoodLogs';
 import { useAuth } from '@/hooks/useAuth';
 import { useUIStore } from '@/store/ui-store';
 import { formatDate } from '@/lib/dateUtils';
+import { apiClient } from '@/lib/api';
 
 export default function FoodLogDetailPage() {
   const params = useParams();
@@ -31,6 +32,19 @@ export default function FoodLogDetailPage() {
 
   const handleEdit = () => {
     router.push(`/dashboard/new-log?id=${foodLogId}`);
+  };
+
+  const handleCleanBrokenPhotos = async () => {
+    if (!confirm('¿Eliminar fotos rotas/no disponibles?')) return;
+    
+    try {
+      await apiClient.deletePhotosByFoodLogId(foodLogId);
+      // Refresh the page
+      window.location.reload();
+    } catch (err) {
+      console.error('Error deleting photos:', err);
+      alert('Error al eliminar fotos');
+    }
   };
 
   if (isCheckingAuth || isLoading) {
@@ -138,7 +152,17 @@ export default function FoodLogDetailPage() {
         {/* Photo */}
         {foodLog.photos && foodLog.photos.length > 0 && (
           <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-3">📷 {t.photos || 'Foto'}</h2>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-xl font-bold text-gray-900">📷 {t.photos || 'Foto'}</h2>
+              <button
+                onClick={handleCleanBrokenPhotos}
+                className="text-sm text-red-600 hover:text-red-700 flex items-center gap-1"
+                title="Eliminar fotos rotas"
+              >
+                <Trash2 className="w-4 h-4" />
+                Limpiar fotos rotas
+              </button>
+            </div>
             {(() => {
               const photo = foodLog.photos[0];
               
