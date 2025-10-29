@@ -31,7 +31,7 @@ export default function WallaviAuth() {
           const metadata = {
             user_metadata: {
               // Authorization for API calls - must match EXACT integration name in Wallavi (HealthCoachAPI8)
-              _authorizations_HealthCoachAPI8: {
+              _authorizations_HealthCoachAPI9: {
                 type: 'bearer',
                 in: 'header',
                 name: 'Authorization',
@@ -51,7 +51,7 @@ export default function WallaviAuth() {
           
           console.log('🔐 Wallavi Auth - Sending identify with token for user:', userId);
           console.log('📋 Token (first 50 chars):', token.substring(0, 50));
-          console.log('🏷️ Integration name: HealthCoachAPI8');
+          console.log('🏷️ Integration name: HealthCoachAPI9');
           
           window.wallavi.identify(metadata);
           
@@ -68,8 +68,15 @@ export default function WallaviAuth() {
     // Try to setup auth immediately
     setupWallaviAuth();
 
-    // Also try after a delay (in case Wallavi loads late)
-    const timeoutId = setTimeout(setupWallaviAuth, 2000);
+    // Multiple retries with increasing delays to handle:
+    // 1. Wallavi widget loading
+    // 2. Initial login token availability
+    const timeouts = [
+      setTimeout(setupWallaviAuth, 1000),   // 1 second
+      setTimeout(setupWallaviAuth, 2000),   // 2 seconds
+      setTimeout(setupWallaviAuth, 4000),   // 4 seconds
+      setTimeout(setupWallaviAuth, 8000),   // 8 seconds (for slow initial login)
+    ];
 
     // Listen for Wallavi load event if available
     const checkInterval = setInterval(() => {
@@ -85,7 +92,7 @@ export default function WallaviAuth() {
     }, 50 * 60 * 1000); // 50 minutes
 
     return () => {
-      clearTimeout(timeoutId);
+      timeouts.forEach(clearTimeout);
       clearInterval(checkInterval);
       clearInterval(refreshInterval);
     };
