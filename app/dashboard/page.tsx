@@ -21,8 +21,18 @@ export default function DashboardPage() {
   const { data: foodLogs = [], isLoading, error } = useFoodLogs(dateFilter);
   const { data: profile } = useHealthProfile();
 
-  // Calculate daily totals
-  const dailyTotals = foodLogs.reduce((acc: { calories: number; protein: number; carbs: number; fat: number }, log: any) => {
+  // Helper function to check if a date is today
+  const isToday = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const today = new Date();
+    return date.toDateString() === today.toDateString();
+  };
+
+  // Filter today's meals only
+  const todaysMeals = foodLogs.filter((log: any) => isToday(log.timestamp));
+
+  // Calculate daily totals - ONLY for today's meals
+  const dailyTotals = todaysMeals.reduce((acc: { calories: number; protein: number; carbs: number; fat: number }, log: any) => {
     return {
       calories: acc.calories + (log.total_calories || 0),
       protein: acc.protein + (log.total_protein || 0),
@@ -104,7 +114,7 @@ export default function DashboardPage() {
           <div className="bg-white rounded-xl shadow-md p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-gray-900">📊 {t.dailySummary || 'Resumen del Día'}</h2>
-              <span className="text-sm text-gray-500">{foodLogs.length} {t.meals || 'comidas'}</span>
+              <span className="text-sm text-gray-500">{todaysMeals.length} {t.meals || 'comidas'}</span>
             </div>
 
             {/* Calorie Progress Bar */}
