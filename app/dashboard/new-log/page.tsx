@@ -176,7 +176,13 @@ export default function NewLogPage() {
       router.push('/dashboard');
     } catch (err: any) {
       console.error('Error saving food log:', err);
-      setError(err.response?.data?.message || err.message || 'Error al guardar');
+      console.error('Error details:', {
+        message: err.message,
+        response: err.response,
+        config: err.config
+      });
+      const errorMessage = err.response?.data?.message || err.response?.data?.error || err.message || 'Error al guardar el registro';
+      setError(errorMessage);
       setUploadProgress(0);
     }
   };
@@ -260,13 +266,13 @@ export default function NewLogPage() {
                 {existingPhotos.length > 0 && !photoPreview && (
                   <div className="mb-4">
                     <p className="text-sm text-gray-600 mb-2">Foto actual:</p>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="max-w-md mx-auto">
                       {existingPhotos.map((photo: any) => (
-                        <div key={photo.id} className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden">
+                        <div key={photo.id} className="relative w-full bg-gray-100 rounded-lg overflow-hidden" style={{ maxHeight: '400px' }}>
                           <img
                             src={photo.url || photo.path}
                             alt="Food"
-                            className="w-full h-full object-cover"
+                            className="w-full h-auto object-contain"
                             onError={(e) => {
                               (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23f3f4f6" width="400" height="300"/%3E%3Ctext fill="%239ca3af" font-family="sans-serif" font-size="16" x="50%25" y="50%25" text-anchor="middle" dominant-baseline="middle"%3EImagen no disponible%3C/text%3E%3C/svg%3E';
                             }}
@@ -302,11 +308,12 @@ export default function NewLogPage() {
                     </label>
                   </div>
                 ) : (
-                  <div className="relative">
+                  <div className="relative max-w-md mx-auto">
                     <img
                       src={photoPreview}
                       alt="Preview"
-                      className="w-full h-64 object-cover rounded-lg"
+                      className="w-full h-auto object-contain rounded-lg bg-gray-100"
+                      style={{ maxHeight: '400px' }}
                     />
                     <button
                       type="button"
