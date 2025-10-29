@@ -84,6 +84,8 @@ export function useExerciseLogs(limit: number = 30) {
   return useQuery({
     queryKey: ['exerciseLogs', limit],
     queryFn: () => fetchExerciseLogs(limit),
+    refetchInterval: 10000, // Auto-refresh every 10 seconds to catch Wallavi chat insertions
+    refetchIntervalInBackground: false, // Only refetch when tab is active
   });
 }
 

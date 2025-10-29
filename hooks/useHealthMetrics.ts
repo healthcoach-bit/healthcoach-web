@@ -99,6 +99,8 @@ export function useHealthMetrics(type?: string, limit?: number) {
   return useQuery({
     queryKey: ['healthMetrics', type, limit],
     queryFn: () => fetchHealthMetrics(type, limit),
+    refetchInterval: 10000, // Auto-refresh every 10 seconds to catch Wallavi chat insertions
+    refetchIntervalInBackground: false, // Only refetch when tab is active
   });
 }
 
