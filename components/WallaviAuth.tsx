@@ -1,9 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
-import { fetchAuthSession } from 'aws-amplify/auth';
+import { useEffect, useState } from 'react';
 import { Hub } from 'aws-amplify/utils';
-import { useHealthProfile } from '@/hooks/useHealthProfile';
+import { fetchAuthSession } from 'aws-amplify/auth';
 
 /**
  * WallaviAuth Component
@@ -12,8 +11,6 @@ import { useHealthProfile } from '@/hooks/useHealthProfile';
  * Fetches Cognito JWT token and passes it to Wallavi for API authorization.
  */
 export default function WallaviAuth() {
-  const { data: healthProfile, isLoading: isLoadingProfile } = useHealthProfile();
-  
   useEffect(() => {
     let isSettingUp = false; // Prevent concurrent executions
     
@@ -75,50 +72,16 @@ export default function WallaviAuth() {
               // If we send timezone, Wallavi may apply conversions and break timestamp consistency
               _contextBuilder: {
                 user_id: userId,
-                has_health_profile: healthProfile ? 'yes' : 'no',
-                profile_complete: healthProfile && healthProfile.date_of_birth ? 'yes' : 'no',
-                // REMOVED: timezone and utc_offset - causes timestamp conversion issues
               },
-              // Environment Context - injected into agent's context on every message
-              // This has PRIORITY over general instructions
-              _environmentContext: {
-                profile_status: healthProfile && healthProfile.date_of_birth 
-                  ? 'Profile complete' 
-                  : 'Profile incomplete - need onboarding',
-                timestamp_format_rules: `CRITICAL TIMESTAMP RULES - MUST FOLLOW EXACTLY:
-1. When user mentions ANY time (breakfast, lunch, dinner, or specific hour), send it EXACTLY as local time
-2. Format: YYYY-MM-DDTHH:MM:00.000Z
-3. DO NOT convert to UTC - just use the time as mentioned
-4. Examples:
-   - User says "desayuno a las 7" → "2025-10-29T07:00:00.000Z" (NOT 13:00 or any other hour)
-   - User says "comida a la 1 PM" → "2025-10-29T13:00:00.000Z" (NOT 19:00)
-   - User says "cena a las 8 PM" → "2025-10-29T20:00:00.000Z" (NOT 02:00 next day)
-5. If no time specified, use: breakfast=07:00, lunch=13:00, dinner=20:00, snack=current hour
-6. The .000Z suffix is just a marker - it does NOT mean UTC time
-7. NEVER add or subtract hours for timezone conversion
-8. Send the hour EXACTLY as the user mentions it`,
-                onboarding_instructions: healthProfile && healthProfile.date_of_birth
-                  ? 'User has health profile - proceed normally'
-                  : `ONBOARDING REQUIRED - User needs to complete health profile first.
+              _systemPrompt: `TIMESTAMP RULES - CRITICAL:
+When user mentions time, use EXACTLY as local time in format YYYY-MM-DDTHH:MM:00.000Z
+- "desayuno a las 7" → "2025-10-29T07:00:00.000Z"
+- "comida a la 1 PM" → "2025-10-29T13:00:00.000Z"
+- "cena a las 8 PM" → "2025-10-29T20:00:00.000Z"
+NEVER convert timezone. The .000Z is just a marker, NOT UTC.
 
-At the START of the conversation (first message), say:
-"¡Hola! 👋 Veo que aún no tienes tu perfil de salud configurado. ¿Te gustaría que te ayude a configurarlo ahora? Es rápido y me ayudará a darte mejores recomendaciones personalizadas."
-
-If user agrees, guide them step by step (one question at a time):
-1. "¿Cuál es tu fecha de nacimiento? (formato: YYYY-MM-DD, ejemplo: 1990-05-15)"
-2. "¿Cuál es tu género? (masculino/femenino/otro/prefiero no decir)"
-3. "¿Cuánto pesas actualmente? (en kilogramos)"
-4. "¿Cuál es tu altura? (en centímetros)"
-5. "¿Tienes un peso objetivo? (en kg, o puedes decir 'no' si no tienes uno específico)"
-6. "¿Cuál es tu objetivo diario de calorías? (número, o puedes decir 'no sé' para calcularlo juntos)"
-7. "¿Cuál es tu nivel de actividad física? (sedentario/ligero/moderado/activo/muy activo)"
-8. "¿Cuáles son tus objetivos de salud principales? (perder peso, ganar músculo, mantenerse saludable, etc.)"
-
-After collecting ALL information, use the health-profile API to save it.
-Then say: "¡Perfecto! ✅ Tu perfil está completo. Ahora puedo ayudarte mejor con tu nutrición y salud. ¿En qué te puedo ayudar hoy?"
-
-IMPORTANT: Make it conversational and friendly, not like a form. Ask ONE question at a time.`,
-              },
+ONBOARDING:
+Al iniciar conversación, llama getHealthProfile. Si devuelve 404 (no existe), inicia onboarding siguiendo las instrucciones en createHealthProfile endpoint del OpenAPI spec.`,
             },
           };
           
@@ -195,72 +158,6 @@ IMPORTANT: Make it conversational and friendly, not like a form. Ask ONE questio
       hubUnsubscribe(); // Unsubscribe from Hub events
     };
   }, []);
-
-  // Update Wallavi when health profile changes
-  useEffect(() => {
-    if (!isLoadingProfile && window.wallavi) {
-      console.log('🔄 Health profile changed, updating Wallavi context...');
-      // Trigger auth setup to update context with new profile status
-      setTimeout(async () => {
-        try {
-          const session = await fetchAuthSession({ forceRefresh: false });
-          const token = session.tokens?.idToken?.toString();
-          const userId = session.tokens?.idToken?.payload?.sub as string;
-
-          if (token && userId && window.wallavi) {
-            const metadata = {
-              user_metadata: {
-                _authorizations_HealthCoachAPI9: {
-                  type: 'bearer',
-                  in: 'header',
-                  name: 'Authorization',
-                  isActive: true,
-                  value: `Bearer ${token}`,
-                },
-                _contextBuilder: {
-                  user_id: userId,
-                  has_health_profile: healthProfile ? 'yes' : 'no',
-                  profile_complete: healthProfile && healthProfile.date_of_birth ? 'yes' : 'no',
-                },
-                _systemPrompt: healthProfile && healthProfile.date_of_birth
-                  ? `Usuario tiene perfil completo. Procede normalmente con registro de comidas y recomendaciones.
-
-TIMESTAMP RULES: When user mentions time, use EXACTLY as local time in format YYYY-MM-DDTHH:MM:00.000Z
-- "desayuno a las 7" → "2025-10-29T07:00:00.000Z"
-- "comida a la 1 PM" → "2025-10-29T13:00:00.000Z"  
-- "cena a las 8 PM" → "2025-10-29T20:00:00.000Z"
-Never convert timezone. .000Z is just a marker, NOT UTC conversion.`
-                  : `🎯 USUARIO SIN PERFIL - INICIAR ONBOARDING
-
-IMPORTANTE: Al inicio de la conversación, di:
-"¡Hola! 👋 Veo que aún no tienes tu perfil configurado. ¿Te gustaría configurarlo ahora? Es rápido y te ayudaré a obtener mejores recomendaciones."
-
-Si acepta, pregunta UNA a la vez (espera respuesta antes de continuar):
-1. Fecha de nacimiento (YYYY-MM-DD, ej: 1990-05-15)
-2. Género (masculino/femenino/otro/prefiero no decir)
-3. Peso actual (kg)
-4. Altura (cm)
-5. Peso objetivo (kg, o "ninguno")
-6. Objetivo calorías diarias (número, o "no sé")
-7. Nivel actividad (sedentario/ligero/moderado/activo/muy activo)
-8. Objetivos salud (perder peso/ganar músculo/mantenerse saludable)
-
-Después de recolectar TODO, usa createHealthProfile API.
-Luego di: "¡Perfecto! ✅ Tu perfil está listo. ¿En qué te ayudo hoy?"
-
-Sé conversacional, amigable. NO como formulario.`,
-              },
-            };
-            
-            window.wallavi.identify(metadata);
-            console.log('✅ Wallavi context updated with profile status');
-          }
-        } catch (error) {
-          console.error('❌ Error updating Wallavi context:', error);
-        }
-      }, 500);
-    }
-  }, [healthProfile, isLoadingProfile]);
 
   return null; // This component doesn't render anything
 }
