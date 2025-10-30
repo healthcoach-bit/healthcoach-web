@@ -343,7 +343,7 @@ export default function HealthDashboardPage() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     <div className="text-right">
                       <p className="text-sm text-gray-500">
                         {formatDate(exercise.performed_at, locale)}
@@ -354,6 +354,13 @@ export default function HealthDashboardPage() {
                         </p>
                       )}
                     </div>
+                    <Link
+                      href={`/dashboard/exercise/${exercise.id}`}
+                      className="sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-2 text-blue-600 hover:bg-blue-50 rounded"
+                      title={t.edit}
+                    >
+                      ✏️
+                    </Link>
                     <button
                       onClick={() => openDeleteModal(exercise.id, 'exerciseLog')}
                       className="sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-2 text-red-600 hover:bg-red-50 rounded"
