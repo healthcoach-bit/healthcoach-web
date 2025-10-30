@@ -12,6 +12,8 @@ import { Hub } from 'aws-amplify/utils';
  */
 export default function WallaviAuth() {
   useEffect(() => {
+    let isSettingUp = false; // Prevent concurrent executions
+    
     // Clear Wallavi authentication
     const clearWallaviAuth = () => {
       if (typeof window === 'undefined' || !window.wallavi) {
@@ -31,6 +33,11 @@ export default function WallaviAuth() {
     
     // Wait for Wallavi to be initialized
     const setupWallaviAuth = async () => {
+      // Prevent concurrent executions
+      if (isSettingUp) {
+        console.log('⏸️ Auth setup already in progress, skipping...');
+        return;
+      }
       // Check if Wallavi is loaded
       if (typeof window === 'undefined' || !window.wallavi) {
         console.log('⏳ Wallavi not loaded yet, skipping auth setup');
@@ -38,17 +45,20 @@ export default function WallaviAuth() {
       }
       
       console.log('🎯 Wallavi detected, setting up authentication...');
+      
+      isSettingUp = true;
 
       try {
-        // Force refresh to get latest token
-        const session = await fetchAuthSession({ forceRefresh: true });
+        // Get session WITHOUT forcing refresh to avoid triggering tokenRefresh events
+        // Only force refresh on the periodic interval (every 50 minutes)
+        const session = await fetchAuthSession({ forceRefresh: false });
         const token = session.tokens?.idToken?.toString();
         const userId = session.tokens?.idToken?.payload?.sub as string;
 
         if (token && userId) {
           const metadata = {
             user_metadata: {
-              // Authorization for API calls - must match EXACT integration name in Wallavi (HealthCoachAPI8)
+              // Authorization for API calls - must match EXACT integration name in Wallavi (HealthCoachAPI9)
               _authorizations_HealthCoachAPI9: {
                 type: 'bearer',
                 in: 'header',
@@ -80,6 +90,8 @@ export default function WallaviAuth() {
       } catch (error) {
         console.error('❌ Wallavi Auth Error:', error);
         console.log('⚠️ Wallavi authentication failed - user may need to login');
+      } finally {
+        isSettingUp = false;
       }
     };
 
@@ -109,7 +121,8 @@ export default function WallaviAuth() {
       setupWallaviAuth();
     }, 50 * 60 * 1000); // 50 minutes
 
-    // Listen for auth events (signIn, signOut, etc.)
+    // Listen for auth events (signIn, signOut)
+    // NOTE: We DON'T listen to tokenRefresh to avoid infinite loops
     const hubUnsubscribe = Hub.listen('auth', ({ payload }) => {
       const { event } = payload;
       
@@ -125,10 +138,8 @@ export default function WallaviAuth() {
           console.log('👋 User signed out, clearing Wallavi auth...');
           clearWallaviAuth();
           break;
-        case 'tokenRefresh':
-          console.log('🔄 Token refreshed, updating Wallavi auth...');
-          setupWallaviAuth();
-          break;
+        // REMOVED: tokenRefresh case - causes infinite loop with forceRefresh
+        // Token refresh is handled by the 50-minute interval instead
       }
     });
 
