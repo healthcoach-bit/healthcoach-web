@@ -275,10 +275,11 @@ export default function HealthDashboardPage() {
                   <li key={goal} className="flex items-center gap-2">
                     <span className="text-green-600">✓</span>
                     <span className="text-gray-700 capitalize">
-                      {goal === 'lose_weight' && t.loseWeight}
-                      {goal === 'build_muscle' && t.buildMuscle}
-                      {goal === 'improve_health' && t.improveHealth}
-                      {goal === 'manage_condition' && t.manageCondition}
+                      {goal === 'lose_weight' ? t.loseWeight :
+                       goal === 'build_muscle' ? t.buildMuscle :
+                       goal === 'improve_health' ? t.improveHealth :
+                       goal === 'manage_condition' ? t.manageCondition :
+                       goal}
                     </span>
                   </li>
                 ))}
