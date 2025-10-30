@@ -383,10 +383,10 @@ export default function HealthProfilePage() {
                 onClick={() => setShowDeleteModal(true)}
                 className="w-full px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
               >
-                🗑️ Borrar Perfil (Testing)
+                🗑️ {t.deleteProfileTesting}
               </button>
               <p className="text-xs text-gray-500 text-center mt-2">
-                ⚠️ Esto borrará tu perfil completamente. Útil para probar el onboarding de Wallavi.
+                ⚠️ {t.deleteProfileWarning}
               </p>
             </div>
           )}
@@ -397,14 +397,13 @@ export default function HealthProfilePage() {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
               <h3 className="text-xl font-bold text-gray-900 mb-4">
-                ⚠️ Confirmar Eliminación
+                ⚠️ {t.confirmDeleteProfile}
               </h3>
               <p className="text-gray-700 mb-6">
-                ¿Estás seguro de que quieres borrar tu perfil de salud? 
-                Esta acción no se puede deshacer.
+                {t.deleteProfileMessage}
               </p>
               <p className="text-sm text-gray-600 mb-6">
-                💡 Después de borrar, Wallavi te guiará para crear un nuevo perfil.
+                💡 {t.deleteProfileHint}
               </p>
               <div className="flex gap-4">
                 <button
@@ -413,7 +412,7 @@ export default function HealthProfilePage() {
                   disabled={deleteProfile.isPending}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
                 >
-                  Cancelar
+                  {t.cancel}
                 </button>
                 <button
                   type="button"
@@ -421,7 +420,7 @@ export default function HealthProfilePage() {
                   disabled={deleteProfile.isPending}
                   className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400"
                 >
-                  {deleteProfile.isPending ? 'Borrando...' : 'Sí, Borrar'}
+                  {deleteProfile.isPending ? t.deletingProfile : t.yesDelete}
                 </button>
               </div>
             </div>

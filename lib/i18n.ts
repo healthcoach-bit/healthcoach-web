@@ -250,6 +250,16 @@ export const translations = {
     nutritionalInfo: 'Nutritional Information',
     today: 'Today',
     yesterday: 'Yesterday',
+    
+    // Delete Profile
+    deleteProfile: 'Delete Profile',
+    deleteProfileTesting: 'Delete Profile (Testing)',
+    deleteProfileWarning: 'This will delete your profile completely. Useful for testing Wallavi onboarding.',
+    confirmDeleteProfile: 'Confirm Deletion',
+    deleteProfileMessage: 'Are you sure you want to delete your health profile? This action cannot be undone.',
+    deleteProfileHint: 'After deleting, Wallavi will guide you to create a new profile.',
+    yesDelete: 'Yes, Delete',
+    deletingProfile: 'Deleting...',
   },
   es: {
     // Navigation
@@ -500,6 +510,16 @@ export const translations = {
     nutritionalInfo: 'Información Nutricional',
     today: 'Hoy',
     yesterday: 'Ayer',
+    
+    // Delete Profile
+    deleteProfile: 'Borrar Perfil',
+    deleteProfileTesting: 'Borrar Perfil (Testing)',
+    deleteProfileWarning: 'Esto borrará tu perfil completamente. Útil para probar el onboarding de Wallavi.',
+    confirmDeleteProfile: 'Confirmar Eliminación',
+    deleteProfileMessage: '¿Estás seguro de que quieres borrar tu perfil de salud? Esta acción no se puede deshacer.',
+    deleteProfileHint: 'Después de borrar, Wallavi te guiará para crear un nuevo perfil.',
+    yesDelete: 'Sí, Borrar',
+    deletingProfile: 'Borrando...',
   },
 };
 
