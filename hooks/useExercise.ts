@@ -66,6 +66,43 @@ async function createExerciseLog(exerciseData: ExerciseData): Promise<ExerciseLo
   return data.exercise;
 }
 
+async function fetchExerciseLog(exerciseId: string): Promise<ExerciseLog> {
+  const token = await getAuthToken();
+  const response = await fetch(`${API_ENDPOINT}/exercise-logs/${exerciseId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch exercise log');
+  }
+
+  const data = await response.json();
+  return data.exercise;
+}
+
+async function updateExerciseLog(params: { exerciseId: string; exerciseData: Partial<ExerciseData> }): Promise<ExerciseLog> {
+  const { exerciseId, exerciseData } = params;
+  const token = await getAuthToken();
+  const response = await fetch(`${API_ENDPOINT}/exercise-logs/${exerciseId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(exerciseData),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || `Failed to update exercise log (${response.status})`);
+  }
+
+  const data = await response.json();
+  return data.exercise;
+}
+
 async function deleteExerciseLog(exerciseId: string): Promise<void> {
   const token = await getAuthToken();
   const response = await fetch(`${API_ENDPOINT}/exercise-logs/${exerciseId}`, {
@@ -92,6 +129,14 @@ export function useExerciseLogs(limit: number = 30) {
   });
 }
 
+export function useExerciseLog(exerciseId: string) {
+  return useQuery({
+    queryKey: ['exerciseLog', exerciseId],
+    queryFn: () => fetchExerciseLog(exerciseId),
+    enabled: !!exerciseId,
+  });
+}
+
 export function useCreateExerciseLog() {
   const queryClient = useQueryClient();
 
@@ -99,6 +144,18 @@ export function useCreateExerciseLog() {
     mutationFn: createExerciseLog,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['exerciseLogs'] });
+    },
+  });
+}
+
+export function useUpdateExerciseLog() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateExerciseLog,
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['exerciseLogs'] });
+      queryClient.invalidateQueries({ queryKey: ['exerciseLog', variables.exerciseId] });
     },
   });
 }
