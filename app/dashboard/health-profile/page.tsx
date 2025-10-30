@@ -9,14 +9,16 @@ import LoadingSpinner from '@/components/LoadingSpinner';
 import ErrorAlert from '@/components/ErrorAlert';
 import FormInput from '@/components/FormInput';
 import FormSelect from '@/components/FormSelect';
-import { useHealthProfile, useSaveHealthProfile } from '@/hooks/useHealthProfile';
+import { useHealthProfile, useSaveHealthProfile, useDeleteHealthProfile } from '@/hooks/useHealthProfile';
 
 export default function HealthProfilePage() {
   const router = useRouter();
   const { t } = useLanguage();
   const { data: profile, isLoading, error } = useHealthProfile();
   const saveProfile = useSaveHealthProfile();
+  const deleteProfile = useDeleteHealthProfile();
 
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [formData, setFormData] = useState({
     dateOfBirth: '',
     gender: '',
@@ -123,6 +125,17 @@ export default function HealthProfilePage() {
         ? formData.healthGoals.filter((g) => g !== goal)
         : [...formData.healthGoals, goal],
     });
+  };
+
+  const handleDelete = async () => {
+    try {
+      await deleteProfile.mutateAsync();
+      setShowDeleteModal(false);
+      router.push('/dashboard');
+    } catch (err: any) {
+      setSaveError(err.message || 'Failed to delete profile');
+      setShowDeleteModal(false);
+    }
   };
 
   if (isLoading) {
@@ -361,7 +374,59 @@ export default function HealthProfilePage() {
               {saveProfile.isPending ? t.saving : t.saveProfile}
             </button>
           </div>
+
+          {/* Delete Profile Button (only show if profile exists) */}
+          {profile && (
+            <div className="pt-6 border-t border-gray-200">
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(true)}
+                className="w-full px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                🗑️ Borrar Perfil (Testing)
+              </button>
+              <p className="text-xs text-gray-500 text-center mt-2">
+                ⚠️ Esto borrará tu perfil completamente. Útil para probar el onboarding de Wallavi.
+              </p>
+            </div>
+          )}
         </form>
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">
+                ⚠️ Confirmar Eliminación
+              </h3>
+              <p className="text-gray-700 mb-6">
+                ¿Estás seguro de que quieres borrar tu perfil de salud? 
+                Esta acción no se puede deshacer.
+              </p>
+              <p className="text-sm text-gray-600 mb-6">
+                💡 Después de borrar, Wallavi te guiará para crear un nuevo perfil.
+              </p>
+              <div className="flex gap-4">
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteModal(false)}
+                  disabled={deleteProfile.isPending}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={deleteProfile.isPending}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400"
+                >
+                  {deleteProfile.isPending ? 'Borrando...' : 'Sí, Borrar'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

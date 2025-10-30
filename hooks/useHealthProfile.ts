@@ -107,3 +107,30 @@ export function useSaveHealthProfile() {
     },
   });
 }
+
+async function deleteHealthProfile(): Promise<void> {
+  const token = await getAuthToken();
+  
+  const response = await fetch(`${API_ENDPOINT}/health-profile`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || `Failed to delete health profile (${response.status})`);
+  }
+}
+
+export function useDeleteHealthProfile() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteHealthProfile,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['healthProfile'] });
+    },
+  });
+}
