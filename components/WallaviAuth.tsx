@@ -74,6 +74,22 @@ export default function WallaviAuth() {
                 user_id: userId,
                 // REMOVED: timezone and utc_offset - causes timestamp conversion issues
               },
+              // Environment Context - injected into agent's context on every message
+              // This has PRIORITY over general instructions
+              _environmentContext: {
+                timestamp_format_rules: `CRITICAL TIMESTAMP RULES - MUST FOLLOW EXACTLY:
+1. When user mentions ANY time (breakfast, lunch, dinner, or specific hour), send it EXACTLY as local time
+2. Format: YYYY-MM-DDTHH:MM:00.000Z
+3. DO NOT convert to UTC - just use the time as mentioned
+4. Examples:
+   - User says "desayuno a las 7" → "2025-10-29T07:00:00.000Z" (NOT 13:00 or any other hour)
+   - User says "comida a la 1 PM" → "2025-10-29T13:00:00.000Z" (NOT 19:00)
+   - User says "cena a las 8 PM" → "2025-10-29T20:00:00.000Z" (NOT 02:00 next day)
+5. If no time specified, use: breakfast=07:00, lunch=13:00, dinner=20:00, snack=current hour
+6. The .000Z suffix is just a marker - it does NOT mean UTC time
+7. NEVER add or subtract hours for timezone conversion
+8. Send the hour EXACTLY as the user mentions it`,
+              },
             },
           };
           
