@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Hub } from 'aws-amplify/utils';
+import { useEffect } from 'react';
 import { fetchAuthSession } from 'aws-amplify/auth';
+import { Hub } from 'aws-amplify/utils';
 
 /**
  * WallaviAuth Component
@@ -66,22 +66,20 @@ export default function WallaviAuth() {
                 isActive: true,
                 value: `Bearer ${token}`,
               },
-              // Context Builder metadata - passed as query params
-              // ⚠️ CRITICAL: DO NOT send timezone/offset info
-              // Our system uses "display time" (local time + .000Z marker), NOT actual UTC
-              // If we send timezone, Wallavi may apply conversions and break timestamp consistency
+              // Context Builder metadata
               _contextBuilder: {
                 user_id: userId,
               },
-              _systemPrompt: `TIMESTAMP RULES - CRITICAL:
-When user mentions time, use EXACTLY as local time in format YYYY-MM-DDTHH:MM:00.000Z
-- "desayuno a las 7" → "2025-10-29T07:00:00.000Z"
-- "comida a la 1 PM" → "2025-10-29T13:00:00.000Z"
-- "cena a las 8 PM" → "2025-10-29T20:00:00.000Z"
-NEVER convert timezone. The .000Z is just a marker, NOT UTC.
-
-ONBOARDING:
-Al iniciar conversación, llama getHealthProfile. Si devuelve 404 (no existe), inicia onboarding siguiendo las instrucciones en createHealthProfile endpoint del OpenAPI spec.`,
+              // Environment Context - injected into agent's context
+              _environmentContext: {
+                timestamp_rules: `CRITICAL: When user mentions time (breakfast, lunch, dinner, specific hour):
+- Use time EXACTLY as mentioned in format YYYY-MM-DDTHH:MM:00.000Z
+- "desayuno a las 7" → "2025-10-29T07:00:00.000Z" (NOT 13:00)
+- "comida a la 1 PM" → "2025-10-29T13:00:00.000Z" (NOT 19:00)
+- "cena a las 8 PM" → "2025-10-29T20:00:00.000Z" (NOT 02:00)
+- Default times if not specified: breakfast=07:00, lunch=13:00, dinner=20:00
+- NEVER convert timezone. The .000Z is just a marker.`,
+              },
             },
           };
           
