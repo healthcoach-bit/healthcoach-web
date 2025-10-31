@@ -130,14 +130,6 @@ export default function WallaviAuth() {
       setTimeout(setupWallaviAuth, 8000),   // 8 seconds (for slow initial login)
     ];
 
-    // Listen for Wallavi load event if available
-    const checkInterval = setInterval(() => {
-      if (window.wallavi) {
-        setupWallaviAuth();
-        clearInterval(checkInterval);
-      }
-    }, 500);
-
     // Refresh token every 50 minutes (tokens expire after 60 minutes)
     const refreshInterval = setInterval(() => {
       console.log('⏰ 50-minute interval: Forcing token refresh...');
@@ -174,7 +166,6 @@ export default function WallaviAuth() {
 
     return () => {
       timeouts.forEach(clearTimeout);
-      clearInterval(checkInterval);
       clearInterval(refreshInterval);
       clearInterval(expirationCheckInterval);
       hubUnsubscribe(); // Unsubscribe from Hub events
