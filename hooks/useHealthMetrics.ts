@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchAuthSession } from 'aws-amplify/auth';
+import { useHealthProfile } from './useHealthProfile';
 
 const API_ENDPOINT = process.env.NEXT_PUBLIC_API_URL;
 
@@ -81,6 +82,41 @@ async function createHealthMetric(metricData: CreateHealthMetricData): Promise<H
   return data.metric;
 }
 
+async function fetchHealthMetric(id: string): Promise<HealthMetric> {
+  const token = await getAuthToken();
+  const response = await fetch(`${API_ENDPOINT}/health-metrics/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch health metric');
+  }
+
+  const data = await response.json();
+  return data.metric;
+}
+
+async function updateHealthMetric(id: string, metricData: CreateHealthMetricData): Promise<HealthMetric> {
+  const token = await getAuthToken();
+  const response = await fetch(`${API_ENDPOINT}/health-metrics/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(metricData),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to update health metric');
+  }
+
+  const data = await response.json();
+  return data.metric;
+}
+
 async function deleteHealthMetric(id: string): Promise<void> {
   const token = await getAuthToken();
   const response = await fetch(`${API_ENDPOINT}/health-metrics/${id}`, {
@@ -92,6 +128,23 @@ async function deleteHealthMetric(id: string): Promise<void> {
 
   if (!response.ok) {
     throw new Error('Failed to delete health metric');
+  }
+}
+
+async function updateProfileWeight(weightKg: number): Promise<void> {
+  const token = await getAuthToken();
+  const response = await fetch(`${API_ENDPOINT}/health-profile`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ currentWeightKg: weightKg }),
+  });
+
+  if (!response.ok) {
+    console.error('Failed to update profile weight');
+    // Don't throw error - we don't want to fail the metric creation/update if profile update fails
   }
 }
 
@@ -107,13 +160,45 @@ export function useHealthMetrics(type?: string, limit?: number) {
   });
 }
 
+export function useHealthMetric(id: string) {
+  return useQuery({
+    queryKey: ['healthMetric', id],
+    queryFn: () => fetchHealthMetric(id),
+    enabled: !!id,
+  });
+}
+
 export function useCreateHealthMetric() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: createHealthMetric,
-    onSuccess: () => {
+    onSuccess: async (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['healthMetrics'] });
+      
+      // If weight was provided, update the profile weight too
+      if (variables.weightKg !== undefined) {
+        await updateProfileWeight(variables.weightKg);
+        queryClient.invalidateQueries({ queryKey: ['healthProfile'] });
+      }
+    },
+  });
+}
+
+export function useUpdateHealthMetric(id: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (metricData: CreateHealthMetricData) => updateHealthMetric(id, metricData),
+    onSuccess: async (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['healthMetrics'] });
+      queryClient.invalidateQueries({ queryKey: ['healthMetric', id] });
+      
+      // If weight was provided, update the profile weight too
+      if (variables.weightKg !== undefined) {
+        await updateProfileWeight(variables.weightKg);
+        queryClient.invalidateQueries({ queryKey: ['healthProfile'] });
+      }
     },
   });
 }

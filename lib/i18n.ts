@@ -237,6 +237,10 @@ export const translations = {
     totalCholesterol: 'Total Cholesterol',
     saveMetric: 'Save Metric',
     savingMetric: 'Saving Metric...',
+    editMetric: 'Edit Metric',
+    updateMetric: 'Update Metric',
+    updateMetricDetails: 'Update Metric Details',
+    failedToLoadMetric: 'Failed to load metric',
     confirmDelete: 'Are you sure you want to delete this?',
     
     // Dashboard
@@ -501,6 +505,10 @@ export const translations = {
     totalCholesterol: 'Colesterol Total',
     saveMetric: 'Guardar Métrica',
     savingMetric: 'Guardando Métrica...',
+    editMetric: 'Editar Métrica',
+    updateMetric: 'Actualizar Métrica',
+    updateMetricDetails: 'Actualizar Detalles de la Métrica',
+    failedToLoadMetric: 'Error al cargar la métrica',
     confirmDelete: '¿Estás seguro de que quieres eliminar esto?',
     
     // Dashboard
