@@ -20,12 +20,9 @@ export default function WallaviAuth() {
         return;
       }
       
-      console.log('🚪 Clearing Wallavi authentication on logout...');
-      
       // Clear by identifying with empty metadata
       try {
         window.wallavi.identify({ user_metadata: {} });
-        console.log('✅ Wallavi authentication cleared');
       } catch (error) {
         console.error('❌ Error clearing Wallavi auth:', error);
       }
@@ -35,16 +32,13 @@ export default function WallaviAuth() {
     const setupWallaviAuth = async (forceRefresh = false) => {
       // Prevent concurrent executions
       if (isSettingUp) {
-        console.log('⏸️ Auth setup already in progress, skipping...');
         return;
       }
       // Check if Wallavi is loaded
       if (typeof window === 'undefined' || !window.wallavi) {
-        console.log('⏳ Wallavi not loaded yet, skipping auth setup');
         return;
       }
       
-      console.log('🎯 Wallavi detected, setting up authentication...');
       
       isSettingUp = true;
 
@@ -58,7 +52,7 @@ export default function WallaviAuth() {
         // Check if token is expired or will expire in the next 5 minutes
         if (tokenExp) {
           const expiresIn = tokenExp - Math.floor(Date.now() / 1000);
-          console.log(`⏱️ Token expires in ${Math.floor(expiresIn / 60)} minutes`);
+          // console.log(`⏱️ Token expires in ${Math.floor(expiresIn / 60)} minutes`);
           
           if (expiresIn < 300) { // Less than 5 minutes
             console.log('🔄 Token expiring soon, forcing refresh...');
@@ -99,19 +93,13 @@ export default function WallaviAuth() {
             },
           };
           
-          console.log('🔐 Wallavi Auth - Sending identify with token for user:', userId);
-          console.log('📋 Token (first 50 chars):', token.substring(0, 50));
-          console.log('🏷️ Integration name: HealthCoachAPI9');
-          
           window.wallavi.identify(metadata);
           
-          console.log('✅ Wallavi identify() called successfully');
         } else {
           console.warn('⚠️ Wallavi Auth - Missing token or userId', { hasToken: !!token, hasUserId: !!userId });
         }
       } catch (error) {
         console.error('❌ Wallavi Auth Error:', error);
-        console.log('⚠️ Wallavi authentication failed - user may need to login');
       } finally {
         isSettingUp = false;
       }
@@ -132,13 +120,12 @@ export default function WallaviAuth() {
 
     // Refresh token every 50 minutes (tokens expire after 60 minutes)
     const refreshInterval = setInterval(() => {
-      console.log('⏰ 50-minute interval: Forcing token refresh...');
       setupWallaviAuth(true); // Force refresh on interval
     }, 50 * 60 * 1000); // 50 minutes
 
     // Check token expiration every 5 minutes
     const expirationCheckInterval = setInterval(() => {
-      console.log('🔍 Checking token expiration...');
+      // console.log('🔍 Checking token expiration...');
       setupWallaviAuth(false); // Will auto-refresh if token is expiring soon
     }, 5 * 60 * 1000); // 5 minutes
 
@@ -147,16 +134,12 @@ export default function WallaviAuth() {
     const hubUnsubscribe = Hub.listen('auth', ({ payload }) => {
       const { event } = payload;
       
-      console.log('🔔 Auth event detected:', event);
-      
       switch (event) {
         case 'signedIn':
-          console.log('👤 User signed in, setting up Wallavi auth...');
           // Wait a bit for token to be available
           setTimeout(setupWallaviAuth, 1000);
           break;
         case 'signedOut':
-          console.log('👋 User signed out, clearing Wallavi auth...');
           clearWallaviAuth();
           break;
         // REMOVED: tokenRefresh case - causes infinite loop with forceRefresh
