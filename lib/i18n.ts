@@ -200,6 +200,11 @@ export const translations = {
     sports: 'Sports',
     otherExercise: 'Other',
     noExerciseLogs: 'No exercise logs yet. Start tracking your workouts!',
+    allExerciseLogs: 'All your exercise logs',
+    startLoggingExercise: 'Start logging your exercises',
+    totalExercises: 'Total Exercises',
+    totalMinutes: 'Total Minutes',
+    totalCalories: 'Total Calories',
     
     // Suggestions & Insights
     insights: 'Insights',
@@ -252,6 +257,8 @@ export const translations = {
     fat: 'Fat',
     recentMeals: 'Recent Meals',
     viewAll: 'View All',
+    viewMore: 'View More',
+    more: 'more',
     viewAllMeals: 'View Complete History',
     calorieGoal: 'Calorie Goal',
     calorieGoalDaily: 'Daily Calorie Goal',
@@ -468,6 +475,11 @@ export const translations = {
     sports: 'Deportes',
     otherExercise: 'Otro',
     noExerciseLogs: '¡No hay ejercicios registrados! Comienza a rastrear tus entrenamientos.',
+    allExerciseLogs: 'Todos tus ejercicios registrados',
+    startLoggingExercise: 'Comienza a registrar tus ejercicios',
+    totalExercises: 'Total de Ejercicios',
+    totalMinutes: 'Minutos Totales',
+    totalCalories: 'Calorías Totales',
     
     // Suggestions & Insights
     insights: 'Análisis',
@@ -520,6 +532,8 @@ export const translations = {
     fat: 'Grasa',
     recentMeals: 'Últimas Comidas',
     viewAll: 'Ver Todas',
+    viewMore: 'Ver Más',
+    more: 'más',
     viewAllMeals: 'Ver Historial Completo',
     calorieGoal: 'Objetivo de Calorías',
     calorieGoalDaily: 'Objetivo de Calorías día',

@@ -335,50 +335,62 @@ export default function HealthDashboardPage() {
               <LoadingSpinner />
             </div>
           ) : exercises.length > 0 ? (
-            <div className="space-y-3">
-              {exercises.slice(0, 5).map((exercise: any) => (
-                <div key={exercise.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg group hover:bg-gray-100 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">🏃</span>
-                    <div>
-                      <p className="font-medium text-gray-900 capitalize">
-                        {t[exercise.exercise_type as keyof typeof t] || exercise.exercise_type}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        {exercise.duration_minutes} {t.minutes}
-                        {exercise.intensity && ` • ${t[exercise.intensity as keyof typeof t] || exercise.intensity}`}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="text-right">
-                      <p className="text-sm text-gray-500">
-                        {formatDate(exercise.performed_at, locale)}
-                      </p>
-                      {exercise.calories_burned && (
-                        <p className="text-sm text-orange-600 font-medium">
-                          {exercise.calories_burned} {t.calories}
+            <>
+              <div className="space-y-3">
+                {exercises.slice(0, 3).map((exercise: any) => (
+                  <div key={exercise.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg group hover:bg-gray-100 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">🏃</span>
+                      <div>
+                        <p className="font-medium text-gray-900 capitalize">
+                          {t[exercise.exercise_type as keyof typeof t] || exercise.exercise_type}
                         </p>
-                      )}
+                        <p className="text-sm text-gray-600">
+                          {exercise.duration_minutes} {t.minutes}
+                          {exercise.intensity && ` • ${t[exercise.intensity as keyof typeof t] || exercise.intensity}`}
+                        </p>
+                      </div>
                     </div>
-                    <Link
-                      href={`/dashboard/exercise/${exercise.id}`}
-                      className="sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-2 text-blue-600 hover:bg-blue-50 rounded"
-                      title={t.edit}
-                    >
-                      ✏️
-                    </Link>
-                    <button
-                      onClick={() => openDeleteModal(exercise.id, 'exerciseLog')}
-                      className="sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-2 text-red-600 hover:bg-red-50 rounded"
-                      title={t.delete}
-                    >
-                      🗑️
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <div className="text-right">
+                        <p className="text-sm text-gray-500">
+                          {formatDate(exercise.performed_at, locale)}
+                        </p>
+                        {exercise.calories_burned && (
+                          <p className="text-sm text-orange-600 font-medium">
+                            {exercise.calories_burned} {t.calories}
+                          </p>
+                        )}
+                      </div>
+                      <Link
+                        href={`/dashboard/exercise/${exercise.id}`}
+                        className="sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-2 text-blue-600 hover:bg-blue-50 rounded"
+                        title={t.edit}
+                      >
+                        ✏️
+                      </Link>
+                      <button
+                        onClick={() => openDeleteModal(exercise.id, 'exerciseLog')}
+                        className="sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-2 text-red-600 hover:bg-red-50 rounded"
+                        title={t.delete}
+                      >
+                        🗑️
+                      </button>
+                    </div>
                   </div>
+                ))}
+              </div>
+              {exercises.length > 3 && (
+                <div className="mt-4 text-center">
+                  <Link
+                    href="/dashboard/exercise"
+                    className="inline-block px-6 py-2 text-green-600 hover:text-green-700 font-medium hover:bg-green-50 rounded-lg transition-colors"
+                  >
+                    {t.viewMore} ({exercises.length - 3} {t.more})
+                  </Link>
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           ) : (
             <div className="text-center py-8 text-gray-500">
               <p className="text-lg mb-2">🏃</p>
