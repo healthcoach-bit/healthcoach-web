@@ -32,7 +32,7 @@ export default function WallaviAuth() {
     };
     
     // Wait for Wallavi to be initialized
-    const setupWallaviAuth = async () => {
+    const setupWallaviAuth = async (forceRefresh = false) => {
       // Prevent concurrent executions
       if (isSettingUp) {
         console.log('⏸️ Auth setup already in progress, skipping...');
@@ -49,11 +49,27 @@ export default function WallaviAuth() {
       isSettingUp = true;
 
       try {
-        // Get session WITHOUT forcing refresh to avoid triggering tokenRefresh events
-        // Only force refresh on the periodic interval (every 50 minutes)
-        const session = await fetchAuthSession({ forceRefresh: false });
+        // Force refresh when called from interval, otherwise check if token is about to expire
+        const session = await fetchAuthSession({ forceRefresh });
         const token = session.tokens?.idToken?.toString();
         const userId = session.tokens?.idToken?.payload?.sub as string;
+        const tokenExp = session.tokens?.idToken?.payload?.exp as number;
+        
+        // Check if token is expired or will expire in the next 5 minutes
+        if (tokenExp) {
+          const expiresIn = tokenExp - Math.floor(Date.now() / 1000);
+          console.log(`⏱️ Token expires in ${Math.floor(expiresIn / 60)} minutes`);
+          
+          if (expiresIn < 300) { // Less than 5 minutes
+            console.log('🔄 Token expiring soon, forcing refresh...');
+            const refreshedSession = await fetchAuthSession({ forceRefresh: true });
+            const refreshedToken = refreshedSession.tokens?.idToken?.toString();
+            if (refreshedToken) {
+              console.log('✅ Token refreshed successfully');
+              return setupWallaviAuth(false); // Retry with refreshed token
+            }
+          }
+        }
 
         if (token && userId) {
           const metadata = {
@@ -124,8 +140,15 @@ export default function WallaviAuth() {
 
     // Refresh token every 50 minutes (tokens expire after 60 minutes)
     const refreshInterval = setInterval(() => {
-      setupWallaviAuth();
+      console.log('⏰ 50-minute interval: Forcing token refresh...');
+      setupWallaviAuth(true); // Force refresh on interval
     }, 50 * 60 * 1000); // 50 minutes
+
+    // Check token expiration every 5 minutes
+    const expirationCheckInterval = setInterval(() => {
+      console.log('🔍 Checking token expiration...');
+      setupWallaviAuth(false); // Will auto-refresh if token is expiring soon
+    }, 5 * 60 * 1000); // 5 minutes
 
     // Listen for auth events (signIn, signOut)
     // NOTE: We DON'T listen to tokenRefresh to avoid infinite loops
@@ -153,6 +176,7 @@ export default function WallaviAuth() {
       timeouts.forEach(clearTimeout);
       clearInterval(checkInterval);
       clearInterval(refreshInterval);
+      clearInterval(expirationCheckInterval);
       hubUnsubscribe(); // Unsubscribe from Hub events
     };
   }, []);
