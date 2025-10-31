@@ -205,6 +205,12 @@ export const translations = {
     totalExercises: 'Total Exercises',
     totalMinutes: 'Total Minutes',
     totalCalories: 'Total Calories',
+    allHealthMetrics: 'All your health metrics',
+    noHealthMetrics: 'No health metrics yet',
+    startLoggingMetrics: 'Start logging your health metrics',
+    totalMetrics: 'Total Metrics',
+    latestWeight: 'Latest Weight',
+    weightChange: 'Weight Change',
     
     // Suggestions & Insights
     insights: 'Insights',
@@ -480,6 +486,12 @@ export const translations = {
     totalExercises: 'Total de Ejercicios',
     totalMinutes: 'Minutos Totales',
     totalCalories: 'Calorías Totales',
+    allHealthMetrics: 'Todas tus métricas de salud',
+    noHealthMetrics: 'No hay métricas registradas',
+    startLoggingMetrics: 'Comienza a registrar tus métricas de salud',
+    totalMetrics: 'Total de Métricas',
+    latestWeight: 'Último Peso',
+    weightChange: 'Cambio de Peso',
     
     // Suggestions & Insights
     insights: 'Análisis',

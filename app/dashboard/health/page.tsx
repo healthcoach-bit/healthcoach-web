@@ -203,7 +203,7 @@ export default function HealthDashboardPage() {
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
             <h2 className="text-xl font-bold text-gray-900 mb-4">{t.progress}</h2>
             <div className="space-y-4">
-              {metrics.slice(0, 5).map((metric, index) => (
+              {metrics.slice(0, 3).map((metric, index) => (
                 <div key={metric.id} className="flex items-center gap-4 group">
                   <div className="w-32 text-sm text-gray-600">
                     {formatDate(metric.measured_at, locale)}
@@ -240,6 +240,16 @@ export default function HealthDashboardPage() {
                 </div>
               ))}
             </div>
+            {metrics.length > 3 && (
+              <div className="mt-4 text-center">
+                <Link
+                  href="/dashboard/health-metrics"
+                  className="inline-block px-6 py-2 text-blue-600 hover:text-blue-700 font-medium hover:bg-blue-50 rounded-lg transition-colors"
+                >
+                  {t.viewMore} ({metrics.length - 3} {t.more})
+                </Link>
+              </div>
+            )}
           </div>
         )}
 
