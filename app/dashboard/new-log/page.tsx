@@ -14,16 +14,7 @@ import { usePhotoUpload } from '@/hooks/usePhotos';
 import { useUIStore } from '@/store/ui-store';
 import { apiClient } from '@/lib/api';
 import { useQueryClient } from '@tanstack/react-query';
-
-// Helper function to get local datetime string for datetime-local input
-const getLocalDateTimeString = (date: Date = new Date()): string => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  return `${year}-${month}-${day}T${hours}:${minutes}`;
-};
+import { localToUTC, utcToLocalInput, getLocalDateTimeString } from '@/lib/dateUtils';
 
 export default function NewLogPage() {
   const router = useRouter();
@@ -102,26 +93,13 @@ export default function NewLogPage() {
       setExistingPhotos(foodLog.photos || []);
       
       /**
-       * ⚠️ CRITICAL: Extract datetime for edit form WITHOUT timezone conversion
+       * ✅ NEW: Convert UTC timestamp to local time for datetime-local input
        * 
-       * PROBLEM: datetime-local input needs format "2025-10-29T09:00"
-       * BUT if we do: new Date(timestamp) → Date object applies timezone conversion
-       * 
-       * SOLUTION: Extract directly from string with regex
-       * - Input: "2025-10-29T09:00:00.000Z" (display time, not UTC)
-       * - Extract: "2025-10-29T09:00"
-       * - NO timezone conversion applied
-       * 
-       * ❌ WRONG: new Date(foodLog.timestamp) + getLocalDateTimeString()
-       * ✅ CORRECT: Extract with regex
+       * - Backend stores: "2025-11-03T21:00:00.000Z" (9 PM UTC)
+       * - User in PST (UTC-7) should see: "2025-11-03T14:00" (2 PM local)
+       * - utcToLocalInput() handles the conversion automatically
        */
-      const timestampMatch = foodLog.timestamp.match(/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/);
-      if (timestampMatch) {
-        setTimestamp(`${timestampMatch[1]}T${timestampMatch[2]}`);
-      } else {
-        // Fallback to current time if timestamp is invalid
-        setTimestamp(getLocalDateTimeString());
-      }
+      setTimestamp(utcToLocalInput(foodLog.timestamp));
     } catch (err: any) {
       console.error('Error loading food log:', err);
       setError('Error al cargar el registro');
@@ -202,10 +180,10 @@ export default function NewLogPage() {
       if (isEditMode && editId) {
         // UPDATE MODE
         setUploadProgress(30);
-        // Format timestamp to match Wallavi format: local time with .000Z
-        // datetime-local input gives "2025-10-29T14:00"
-        // We convert to "2025-10-29T14:00:00.000Z" (display time, not UTC)
-        const formattedTimestamp = `${timestamp}:00.000Z`;
+        // ✅ NEW: Convert local datetime to UTC
+        // datetime-local input gives "2025-11-03T14:00" (2 PM local PST)
+        // localToUTC converts to "2025-11-03T21:00:00.000Z" (9 PM UTC)
+        const formattedTimestamp = localToUTC(timestamp);
         
         await apiClient.updateFoodLog(editId, {
           mealType,
@@ -239,10 +217,10 @@ export default function NewLogPage() {
       } else {
         // CREATE MODE
         setUploadProgress(20);
-        // Format timestamp to match Wallavi format: local time with .000Z
-        // datetime-local input gives "2025-10-29T14:00"
-        // We convert to "2025-10-29T14:00:00.000Z" (display time, not UTC)
-        const formattedTimestamp = `${timestamp}:00.000Z`;
+        // ✅ NEW: Convert local datetime to UTC
+        // datetime-local input gives "2025-11-03T14:00" (2 PM local PST)
+        // localToUTC converts to "2025-11-03T21:00:00.000Z" (9 PM UTC)
+        const formattedTimestamp = localToUTC(timestamp);
         
         const payload = {
           mealType,

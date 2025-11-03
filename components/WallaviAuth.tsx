@@ -82,13 +82,39 @@ export default function WallaviAuth() {
               },
               // Environment Context - injected into agent's context
               _environmentContext: {
-                timestamp_rules: `CRITICAL: When user mentions time (breakfast, lunch, dinner, specific hour):
-- Use time EXACTLY as mentioned in format YYYY-MM-DDTHH:MM:00.000Z
-- "desayuno a las 7" → "2025-10-29T07:00:00.000Z" (NOT 13:00)
-- "comida a la 1 PM" → "2025-10-29T13:00:00.000Z" (NOT 19:00)
-- "cena a las 8 PM" → "2025-10-29T20:00:00.000Z" (NOT 02:00)
-- Default times if not specified: breakfast=07:00, lunch=13:00, dinner=20:00
-- NEVER convert timezone. The .000Z is just a marker.`,
+                user_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                user_utc_offset_hours: -(new Date().getTimezoneOffset() / 60),
+                current_local_date: new Date().toLocaleDateString('en-CA'), // YYYY-MM-DD format
+                current_local_time: new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }),
+                timestamp_rules: `✅ CRITICAL: STORE ALL TIMESTAMPS IN UTC
+
+User's timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}
+UTC offset: ${-(new Date().getTimezoneOffset() / 60) >= 0 ? '+' : ''}${-(new Date().getTimezoneOffset() / 60)}
+Current local date: ${new Date().toLocaleDateString('en-CA')}
+Current local time: ${new Date().toLocaleTimeString('en-US', { hour12: false })}
+
+CONVERSION RULES:
+1. User mentions time in LOCAL timezone
+2. Convert to UTC before saving
+3. Formula: UTC = Local Time + UTC Offset Hours
+
+EXAMPLES FOR ${Intl.DateTimeFormat().resolvedOptions().timeZone}:
+- "desayuno a las 7 AM" (7:00 local) → "${new Date(new Date().setHours(7, 0, 0, 0)).toISOString()}" (UTC)
+- "comida a la 1 PM" (13:00 local) → "${new Date(new Date().setHours(13, 0, 0, 0)).toISOString()}" (UTC)
+- "cena a las 8 PM" (20:00 local) → "${new Date(new Date().setHours(20, 0, 0, 0)).toISOString()}" (UTC)
+- "merienda a las 2 PM" (14:00 local) → "${new Date(new Date().setHours(14, 0, 0, 0)).toISOString()}" (UTC)
+
+DEFAULT LOCAL TIMES (if not specified):
+- breakfast: 07:00 local
+- lunch: 13:00 local  
+- dinner: 20:00 local
+- snack/merienda: 14:00 local
+
+IMPORTANT:
+- ALWAYS use ISO 8601 format: YYYY-MM-DDTHH:MM:SS.000Z
+- The .000Z indicates UTC timezone
+- Users will see times converted back to their local timezone in the UI
+- Never store local time directly - always convert to UTC first`,
               },
             },
           };

@@ -6,6 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import FormInput from '@/components/FormInput';
 import FormSelect from '@/components/FormSelect';
 import FormTextarea from '@/components/FormTextarea';
+import { getLocalDateTimeString } from '@/lib/dateUtils';
 
 interface ExerciseFormData {
   exerciseType: string;
@@ -40,7 +41,7 @@ export default function ExerciseForm({
     intensity: '',
     caloriesBurned: '',
     notes: '',
-    performedAt: new Date().toISOString().slice(0, 16),
+    performedAt: getLocalDateTimeString(), // ✅ NEW: Use proper local datetime
     ...initialData,
   });
 

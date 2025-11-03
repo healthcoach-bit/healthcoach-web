@@ -6,6 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import DashboardHeader from '@/components/DashboardHeader';
 import HealthMetricForm from '@/components/HealthMetricForm';
 import { useHealthMetric, useUpdateHealthMetric } from '@/hooks/useHealthMetrics';
+import { localToUTC, utcToLocalInput, getLocalDateTimeString } from '@/lib/dateUtils';
 
 export default function EditHealthMetricPage({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -18,8 +19,11 @@ export default function EditHealthMetricPage({ params }: { params: { id: string 
     setSaveError('');
 
     try {
+      // ✅ NEW: Convert local datetime to UTC
+      const measuredAtUTC = localToUTC(formData.measuredAt);
+      
       await updateMetric.mutateAsync({
-        measuredAt: formData.measuredAt,
+        measuredAt: measuredAtUTC,
         weightKg: formData.weightKg ? parseFloat(formData.weightKg) : undefined,
         bodyFatPercentage: formData.bodyFatPercentage ? parseFloat(formData.bodyFatPercentage) : undefined,
         muscleMassKg: formData.muscleMassKg ? parseFloat(formData.muscleMassKg) : undefined,
@@ -66,7 +70,10 @@ export default function EditHealthMetricPage({ params }: { params: { id: string 
   }
 
   const initialData = {
-    measuredAt: metric.measured_at?.slice(0, 16) || new Date().toISOString().slice(0, 16),
+    // ✅ NEW: Convert UTC to local for datetime-local input
+    measuredAt: metric.measured_at 
+      ? utcToLocalInput(metric.measured_at)
+      : getLocalDateTimeString(),
     weightKg: metric.weight_kg?.toString() || '',
     bodyFatPercentage: metric.body_fat_percentage?.toString() || '',
     muscleMassKg: metric.muscle_mass_kg?.toString() || '',

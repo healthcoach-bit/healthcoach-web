@@ -6,6 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import DashboardHeader from '@/components/DashboardHeader';
 import HealthMetricForm from '@/components/HealthMetricForm';
 import { useCreateHealthMetric } from '@/hooks/useHealthMetrics';
+import { localToUTC } from '@/lib/dateUtils';
 
 export default function NewHealthMetricPage() {
   const router = useRouter();
@@ -17,8 +18,11 @@ export default function NewHealthMetricPage() {
     setSaveError('');
 
     try {
+      // ✅ NEW: Convert local datetime to UTC
+      const measuredAtUTC = localToUTC(formData.measuredAt);
+      
       await createMetric.mutateAsync({
-        measuredAt: formData.measuredAt,
+        measuredAt: measuredAtUTC,
         weightKg: formData.weightKg ? parseFloat(formData.weightKg) : undefined,
         bodyFatPercentage: formData.bodyFatPercentage ? parseFloat(formData.bodyFatPercentage) : undefined,
         muscleMassKg: formData.muscleMassKg ? parseFloat(formData.muscleMassKg) : undefined,

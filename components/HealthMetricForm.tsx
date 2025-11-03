@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import FormInput from '@/components/FormInput';
 import FormTextarea from '@/components/FormTextarea';
+import { getLocalDateTimeString } from '@/lib/dateUtils';
 
 interface HealthMetricFormData {
   measuredAt: string;
@@ -40,7 +41,7 @@ export default function HealthMetricForm({
   const { t } = useLanguage();
 
   const [formData, setFormData] = useState<HealthMetricFormData>({
-    measuredAt: new Date().toISOString().slice(0, 16),
+    measuredAt: getLocalDateTimeString(), // ✅ NEW: Use proper local datetime
     weightKg: '',
     bodyFatPercentage: '',
     muscleMassKg: '',

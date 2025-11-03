@@ -6,6 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import DashboardHeader from '@/components/DashboardHeader';
 import ExerciseForm from '@/components/ExerciseForm';
 import { useCreateExerciseLog } from '@/hooks/useExercise';
+import { localToUTC } from '@/lib/dateUtils';
 
 export default function NewExercisePage() {
   const router = useRouter();
@@ -22,13 +23,16 @@ export default function NewExercisePage() {
     }
 
     try {
+      // ✅ NEW: Convert local datetime to UTC
+      const performedAtUTC = localToUTC(formData.performedAt);
+      
       await createExercise.mutateAsync({
         exerciseType: formData.exerciseType,
         durationMinutes: parseInt(formData.durationMinutes),
         intensity: formData.intensity || undefined,
         caloriesBurned: formData.caloriesBurned ? parseInt(formData.caloriesBurned) : undefined,
         notes: formData.notes || undefined,
-        performedAt: formData.performedAt,
+        performedAt: performedAtUTC,
       });
 
       router.push('/dashboard/health');

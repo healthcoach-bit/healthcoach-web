@@ -6,6 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import DashboardHeader from '@/components/DashboardHeader';
 import ExerciseForm from '@/components/ExerciseForm';
 import { useExerciseLog, useUpdateExerciseLog } from '@/hooks/useExercise';
+import { localToUTC, utcToLocalInput, getLocalDateTimeString } from '@/lib/dateUtils';
 
 export default function EditExercisePage() {
   const router = useRouter();
@@ -21,11 +22,12 @@ export default function EditExercisePage() {
   const initialData = useMemo(() => {
     if (!exercise) return undefined;
 
-    // Extract time from performed_at string
-    const timeMatch = exercise.performed_at?.match(/T(\d{2}:\d{2})/);
-    const performedAt = timeMatch 
-      ? exercise.performed_at.substring(0, 16) // YYYY-MM-DDTHH:mm
-      : new Date().toISOString().slice(0, 16);
+    // ✅ NEW: Convert UTC to local for datetime-local input
+    // Backend stores UTC: "2025-11-03T21:00:00.000Z" (9 PM UTC)
+    // User in PST sees: "2025-11-03T14:00" (2 PM local)
+    const performedAt = exercise.performed_at 
+      ? utcToLocalInput(exercise.performed_at)
+      : getLocalDateTimeString();
 
     return {
       exerciseType: exercise.exercise_type || '',
@@ -46,8 +48,8 @@ export default function EditExercisePage() {
     }
 
     try {
-      // Format timestamp as display time with .000Z marker
-      const performedAt = `${formData.performedAt}:00.000Z`;
+      // ✅ NEW: Convert local datetime to UTC
+      const performedAt = localToUTC(formData.performedAt);
 
       await updateExercise.mutateAsync({
         exerciseId,
