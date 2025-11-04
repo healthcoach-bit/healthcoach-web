@@ -88,33 +88,31 @@ export default function WallaviAuth() {
                 current_local_time: new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }),
                 timestamp_rules: `✅ CRITICAL: STORE ALL TIMESTAMPS IN UTC
 
-User's timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}
-UTC offset: ${-(new Date().getTimezoneOffset() / 60) >= 0 ? '+' : ''}${-(new Date().getTimezoneOffset() / 60)}
-Current local date: ${new Date().toLocaleDateString('en-CA')}
-Current local time: ${new Date().toLocaleTimeString('en-US', { hour12: false })}
+CONVERSION FORMULA:
+UTC Time = Local Time + user_utc_offset_hours
 
-CONVERSION RULES:
-1. User mentions time in LOCAL timezone
-2. Convert to UTC before saving
-3. Formula: UTC = Local Time + UTC Offset Hours
+STEPS:
+1. User mentions time in their local timezone (use current_local_date and current_local_time as reference)
+2. Add user_utc_offset_hours to convert to UTC
+3. Use ISO 8601 format: YYYY-MM-DDTHH:MM:SS.000Z
 
-EXAMPLES FOR ${Intl.DateTimeFormat().resolvedOptions().timeZone}:
-- "desayuno a las 7 AM" (7:00 local) → "${new Date(new Date().setHours(7, 0, 0, 0)).toISOString()}" (UTC)
-- "comida a la 1 PM" (13:00 local) → "${new Date(new Date().setHours(13, 0, 0, 0)).toISOString()}" (UTC)
-- "cena a las 8 PM" (20:00 local) → "${new Date(new Date().setHours(20, 0, 0, 0)).toISOString()}" (UTC)
-- "merienda a las 2 PM" (14:00 local) → "${new Date(new Date().setHours(14, 0, 0, 0)).toISOString()}" (UTC)
+EXAMPLE CONVERSION:
+- User says "desayuno a las 7 AM"
+- Local time: 07:00
+- Add offset: 07:00 + user_utc_offset_hours = UTC time
+- Format: "YYYY-MM-DDTHH:MM:SS.000Z"
 
-DEFAULT LOCAL TIMES (if not specified):
-- breakfast: 07:00 local
-- lunch: 13:00 local  
-- dinner: 20:00 local
-- snack/merienda: 14:00 local
+DEFAULT LOCAL TIMES (if user doesn't specify):
+- breakfast/desayuno: 07:00
+- lunch/comida: 13:00
+- dinner/cena: 20:00
+- snack/merienda: 14:00
 
 IMPORTANT:
-- ALWAYS use ISO 8601 format: YYYY-MM-DDTHH:MM:SS.000Z
-- The .000Z indicates UTC timezone
-- Users will see times converted back to their local timezone in the UI
-- Never store local time directly - always convert to UTC first`,
+- ALWAYS add user_utc_offset_hours to convert local to UTC
+- If result crosses midnight (hours >= 24), increment date
+- The .000Z indicates true UTC timezone
+- Never use local time directly - always convert to UTC`,
               },
             },
           };
