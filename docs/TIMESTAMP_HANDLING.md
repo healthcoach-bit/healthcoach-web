@@ -2,19 +2,22 @@
 
 ## Overview
 
-Our system uses a **"Display Time"** approach for timestamps, NOT actual UTC time. This is a critical architectural decision that must be preserved.
+Our system uses **proper UTC** for timestamps (changed Nov 3, 2025). This follows industry standards and fixes date shifting bugs with Wallavi integration.
 
 ## The Problem We Solved
 
-### Before (BROKEN):
-- Wallavi sends: `"2025-10-29T09:00:00.000Z"` (9 AM local time with UTC marker)
-- Backend stores: `09:00:00.000Z`
-- Frontend displays: `new Date("...").toLocaleTimeString()` → **2:00 AM** ❌ (9 AM UTC - 7 hours)
+### Before (BROKEN - Display Time Approach):
+- User enters: 10 PM local time
+- Stored as: `"2025-11-03T22:00:00.000Z"` (fake UTC, actually 10 PM local)
+- Wallavi interpreted as: 10 PM UTC = 3 PM local (for PST)
+- **OR** date shifted to next day ❌
 
-### After (CORRECT):
-- Wallavi sends: `"2025-10-29T09:00:00.000Z"` (9 AM local time with UTC marker)
-- Backend strips timezone, stores: `09:00:00.000Z` (as display time)
-- Frontend extracts time from string → **9:00 AM** ✅ (no conversion)
+### After (CORRECT - Real UTC):
+- User enters: 10 PM local (PST, UTC-7)
+- Frontend converts: 10 PM + 7 hours = 5 AM UTC next day
+- Stored as: `"2025-11-04T05:00:00.000Z"` (real UTC)
+- Frontend displays: Converts back to 10 PM local ✅
+- Wallavi works correctly: Receives timezone info, converts properly ✅
 
 ---
 
@@ -22,20 +25,22 @@ Our system uses a **"Display Time"** approach for timestamps, NOT actual UTC tim
 
 ### Timestamp Format
 ```
-"2025-10-29T09:00:00.000Z"
+"2025-11-03T21:00:00.000Z"
 ```
 
 **MEANING:**
-- NOT 9:00 AM UTC
-- IS 9:00 AM local time (display time)
-- `.000Z` is just a marker, not an actual timezone
+- IS 9:00 PM UTC (actual UTC time)
+- `.000Z` indicates true UTC timezone
+- Frontend auto-converts to local for display
+- Wallavi receives timezone info to convert properly
 
 ### Why This Approach?
 
-1. **Wallavi Integration:** Wallavi sends local time with incorrect UTC markers
-2. **Simplicity:** No timezone conversion = no bugs
-3. **User Experience:** Users see exactly what they entered
-4. **Multi-timezone:** Works for users in any timezone
+1. **Industry Standard:** How AWS, Google, Facebook, etc. handle timestamps
+2. **Wallavi Integration:** OpenAI/Wallavi expect and work with real UTC
+3. **Fixes Date Shifting:** No more next-day bugs with evening meals
+4. **Multi-timezone Ready:** Data portable across timezones
+5. **Proper Date Filtering:** Midnight boundaries work correctly
 
 ---
 
@@ -46,19 +51,22 @@ Our system uses a **"Display Time"** approach for timestamps, NOT actual UTC tim
 #### CREATE & UPDATE Handlers
 
 ```typescript
-// ALWAYS strip timezone markers and re-add .000Z
+// Backend receives UTC timestamps from frontend
+// The "stripping" logic still exists but now works with real UTC:
 const stripped = timestamp
   .replace(/Z$/, '')           // Remove Z
   .replace(/\+00:00$/, '')     // Remove +00:00
   .replace(/[+-]\d{2}:\d{2}$/, '') // Remove any offset
   .replace(/\.\d+$/, '');      // Remove milliseconds
 ts = stripped + '.000Z';
+// Result: Normalized UTC timestamp for MySQL TIMESTAMP column
 ```
 
-**DO NOT:**
-- ❌ Use `new Date()` to parse timestamps
-- ❌ Apply any timezone conversions
-- ❌ Store as actual UTC time
+**KEY CHANGE:**
+- Frontend NOW sends real UTC (not display time)
+- Backend normalization still works correctly
+- MySQL TIMESTAMP stores in UTC
+- No backend code changes needed! ✅
 
 **Location:** `/Users/josiaspersonal/CascadeProjects/healthcoach-api/lambda/handlers/foodLogs.ts`
 - Lines 133-173 (CREATE)
@@ -71,22 +79,27 @@ ts = stripped + '.000Z';
 #### formatTime() Function
 
 ```typescript
-// Extract time DIRECTLY from string
-const timeMatch = timestamp.match(/T(\d{2}):(\d{2})/);
-// "2025-10-29T09:00:00.000Z" → "09:00"
-// Format to "9:00 a. m."
+// NOW: Uses Date object for proper UTC to local conversion
+const date = new Date(timestamp); // Browser converts UTC to local
+const hour = date.getHours(); // Gets local hour
+const minute = date.getMinutes().toString().padStart(2, '0');
+const ampm = hour >= 12 ? 'p. m.' : 'a. m.';
+const displayHour = hour % 12 || 12;
+return `${displayHour}:${minute} ${ampm}`;
 ```
 
-**DO NOT:**
-- ❌ `new Date(timestamp).toLocaleTimeString()` - Applies timezone conversion
-- ❌ `new Date(timestamp).getHours()` - Converts from UTC to local
+**NEW APPROACH:**
+- ✅ Use `new Date(timestamp)` - Browser auto-converts UTC to local
+- ✅ Use `getHours()`, `getMinutes()` - These return local time
+- ✅ Simple and correct - Let the browser handle timezone conversion
 
-**DO:**
-- ✅ Extract time with regex from string
-- ✅ Format manually for display
+**OLD APPROACH (REMOVED):**
+- ❌ Regex extraction: `timestamp.match(/T(\d{2}):(\d{2})/)`
+- ❌ Manual string manipulation
+- ❌ Only worked with fake UTC
 
 **Location:** `/Users/josiaspersonal/CascadeProjects/healthcoach-web/lib/dateUtils.ts`
-- Lines 44-89
+- Lines 117-135
 
 ---
 
@@ -95,27 +108,38 @@ const timeMatch = timestamp.match(/T(\d{2}):(\d{2})/);
 #### Sending Timestamps
 
 ```typescript
-// datetime-local gives: "2025-10-29T14:00"
-const formattedTimestamp = `${timestamp}:00.000Z`;
-// Send: "2025-10-29T14:00:00.000Z"
+// NEW: Convert local to UTC using utility function
+import { localToUTC } from '@/lib/dateUtils';
+
+// datetime-local gives: "2025-11-03T14:00" (2 PM local PST)
+const formattedTimestamp = localToUTC(timestamp);
+// Result: "2025-11-03T21:00:00.000Z" (9 PM UTC = 2 PM + 7 hours)
 ```
 
 #### Loading for Edit
 
 ```typescript
-// Extract datetime WITHOUT Date object
-const timestampMatch = foodLog.timestamp.match(/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/);
-const result = `${timestampMatch[1]}T${timestampMatch[2]}`;
-// "2025-10-29T09:00:00.000Z" → "2025-10-29T09:00"
+// NEW: Convert UTC to local using utility function
+import { utcToLocalInput } from '@/lib/dateUtils';
+
+// Backend returns: "2025-11-03T21:00:00.000Z" (9 PM UTC)
+setTimestamp(utcToLocalInput(foodLog.timestamp));
+// Result: "2025-11-03T14:00" (2 PM local for datetime-local input)
 ```
 
-**DO NOT:**
-- ❌ `new Date(timestamp)` - Applies timezone conversion
-- ❌ `date.getHours()`, `date.getMinutes()` - Uses local timezone
+**NEW UTILITY FUNCTIONS:**
+- ✅ `localToUTC()` - Converts datetime-local input to UTC
+- ✅ `utcToLocalInput()` - Converts UTC to datetime-local format
+- ✅ `getLocalDateTimeString()` - Gets current local datetime
+
+**OLD APPROACH (REMOVED):**
+- ❌ String concatenation: `${timestamp}:00.000Z`
+- ❌ Regex extraction for loading
+- ❌ Manual string manipulation
 
 **Location:** `/Users/josiaspersonal/CascadeProjects/healthcoach-web/app/dashboard/new-log/page.tsx`
-- Lines 188-195 (Sending)
-- Lines 104-124 (Loading)
+- Lines 186, 223 (Sending with localToUTC)
+- Line 102 (Loading with utcToLocalInput)
 
 ---
 
@@ -160,35 +184,59 @@ npm run smoke-test
 
 ## Common Mistakes to Avoid
 
-### ❌ WRONG - Using Date objects for display
+### ❌ WRONG - NOT converting to UTC when saving
 
 ```typescript
-// This applies timezone conversion!
-const date = new Date('2025-10-29T09:00:00.000Z');
-const time = date.toLocaleTimeString(); // 2:00 AM ❌
+// User enters 2 PM, you send it as-is
+const timestamp = '2025-11-03T14:00:00.000Z'; // WRONG! This is NOT UTC
+await createFoodLog({ timestamp }); // ❌ Stores local time as UTC
 ```
 
-### ✅ CORRECT - Extract from string
+### ✅ CORRECT - Convert local to UTC
 
 ```typescript
-const match = timestamp.match(/T(\d{2}):(\d{2})/);
-const time = `${match[1]}:${match[2]}`; // 09:00 ✅
+import { localToUTC } from '@/lib/dateUtils';
+// User enters 2 PM local
+const timestamp = '2025-11-03T14:00'; // From datetime-local
+const utcTimestamp = localToUTC(timestamp); // "2025-11-03T21:00:00.000Z"
+await createFoodLog({ timestamp: utcTimestamp }); // ✅ Stores real UTC
 ```
 
 ---
 
-### ❌ WRONG - Using Date for form input
+### ❌ WRONG - Using .slice() for form loading
 
 ```typescript
-const date = new Date(foodLog.timestamp);
-setTimestamp(getLocalDateTimeString(date)); // Converts timezone ❌
+// Don't do this anymore!
+const timestamp = foodLog.timestamp.slice(0, 16); // ❌ Wrong time shown
+setTimestamp(timestamp);
 ```
 
-### ✅ CORRECT - Extract with regex
+### ✅ CORRECT - Use utcToLocalInput()
 
 ```typescript
-const match = timestamp.match(/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/);
-setTimestamp(`${match[1]}T${match[2]}`); // No conversion ✅
+import { utcToLocalInput } from '@/lib/dateUtils';
+// Backend returns UTC, convert to local for editing
+setTimestamp(utcToLocalInput(foodLog.timestamp)); // ✅ Correct local time
+```
+
+---
+
+### ❌ WRONG - Manual string manipulation
+
+```typescript
+// Don't extract with regex anymore
+const match = timestamp.match(/T(\d{2}):(\d{2})/);
+const time = `${match[1]}:${match[2]}`; // ❌ Old approach
+```
+
+### ✅ CORRECT - Use Date objects
+
+```typescript
+// Let the browser handle conversion
+const date = new Date(timestamp); // Browser converts UTC to local
+const hours = date.getHours(); // ✅ Local time
+const minutes = date.getMinutes(); // ✅ Local time
 ```
 
 ---
@@ -196,16 +244,18 @@ setTimestamp(`${match[1]}T${match[2]}`); // No conversion ✅
 ## Integration Notes
 
 ### Wallavi
-- Sends: `"2025-10-29T09:00:00.000Z"` or `"2025-10-29T09:00:00.00+00:00"`
-- Backend: Strips timezone markers
-- Result: Works correctly
+- Receives: `user_timezone`, `user_utc_offset_hours`, `current_local_date`, `current_local_time`
+- User says: "desayuno a las 7 AM"
+- Wallavi converts: 7 AM + user_utc_offset_hours = UTC time
+- Sends: `"2025-11-03T14:00:00.000Z"` (real UTC)
+- Backend: Receives and stores UTC correctly ✅
 
 ### Frontend Manual Entry
-- Sends: `"2025-10-29T14:00:00.000Z"` (formatted from datetime-local)
-- Backend: Strips and re-adds `.000Z`
-- Result: Works correctly
+- User enters: `"2025-11-03T14:00"` in datetime-local input (2 PM local)
+- Frontend converts: `localToUTC("2025-11-03T14:00")` → `"2025-11-03T21:00:00.000Z"`
+- Backend: Receives and stores UTC correctly ✅
 
-Both sources handled identically.
+Both sources now send real UTC!
 
 ---
 
@@ -242,11 +292,23 @@ If timestamp display breaks:
 
 ## Change History
 
-- **2025-10-29:** Initial implementation of display time approach
+- **2025-11-03:** ✅ **MAJOR CHANGE: Switched to proper UTC**
+  - Reason: Date shifting bug with Wallavi (evening meals registered as next day)
+  - Frontend: Added `localToUTC()`, `utcToLocalInput()`, `getLocalDateTimeString()` utilities
+  - Frontend: Updated all forms to use UTC conversion functions
+  - Frontend: Updated `formatTime()` and `formatDate()` to use Date objects
+  - WallaviAuth: Added timezone info to `_environmentContext`
+  - WallaviAuth: Updated timestamp_rules to require UTC conversion
+  - OpenAPI: Updated all timestamp descriptions to require UTC
+  - Backend: No changes needed (normalization still works)
+  - Benefits: Fixes date shifting, industry standard, multi-timezone ready
+
+- **2025-10-29:** Initial implementation of display time approach (DEPRECATED)
   - Backend: Strip timezone markers
-  - Frontend: Extract time from string
+  - Frontend: Extract time from string with regex
   - Tests: Unit tests and smoke tests added
   - Documentation: This document created
+  - Status: ❌ Replaced by UTC approach on 2025-11-03
 
 ---
 
