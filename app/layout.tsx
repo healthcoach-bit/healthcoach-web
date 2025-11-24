@@ -6,6 +6,7 @@ import AuthProvider from "@/components/AuthProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import QueryProvider from "@/components/QueryProvider";
 import WallaviAuth from "@/components/WallaviAuth";
+import RealtimeProvider from "@/components/RealtimeProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,7 +26,9 @@ export default function RootLayout({
         <QueryProvider>
           <LanguageProvider>
             <AuthProvider>
-              {children}
+              <RealtimeProvider>
+                {children}
+              </RealtimeProvider>
               {/* Wallavi Auth - handles token authentication */}
               <WallaviAuth />
             </AuthProvider>
