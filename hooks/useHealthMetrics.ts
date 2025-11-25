@@ -152,9 +152,7 @@ export function useHealthMetrics(type?: string, limit?: number) {
   return useQuery({
     queryKey: ['healthMetrics', type, limit],
     queryFn: () => fetchHealthMetrics(type, limit),
-    // Commented out for testing - reduce API calls
-    refetchInterval: 8000, // Fast polling - check every 5 seconds
-    refetchIntervalInBackground: false, // Only when tab is active
+    // Real-time updates via WebSocket (RealtimeProvider), no polling needed
     refetchOnWindowFocus: true, // Instant refresh when returning to tab
     refetchOnReconnect: true, // Refresh when internet reconnects
   });

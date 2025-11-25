@@ -94,8 +94,7 @@ export function useHealthProfile() {
   return useQuery({
     queryKey: ['healthProfile'],
     queryFn: fetchHealthProfile,
-    refetchInterval: 8000, // Fast polling - check every 8 seconds
-    refetchIntervalInBackground: false, // Only when tab is active
+    // Real-time updates via WebSocket (RealtimeProvider), no polling needed
     refetchOnWindowFocus: true, // Instant refresh when returning to tab
     refetchOnReconnect: true, // Refresh when internet reconnects
   });
